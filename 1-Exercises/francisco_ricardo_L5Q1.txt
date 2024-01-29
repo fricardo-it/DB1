@@ -1,0 +1,221 @@
+SQL> 
+SQL> CREATE TABLE course(courseid NUMBER, coursename varchar2(40), credits number);
+
+Table created.
+
+SQL> CREATE TABLE term(termid NUMBER, description VARCHAR2(50));
+
+Table created.
+
+SQL> CREATE TABLE location(locid NUMBER, building VARCHAR2(20), room NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE student(studid NUMBER, sname varchar2(50), birthdate DATE);
+
+Table created.
+
+SQL> CREATE TABLE course_section(csectionid NUMBER, maxcapacity NUMBER, courseid NUMBER, termid number, locid number);
+
+Table created.
+
+SQL> CREATE TABLE enrollment(studid NUMBER, csectionid NUMBER, grade NUMBER(3,2));
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE course
+  2  ADD CONSTRAINT course_courseid_PK PRIMARY KEY (courseid);
+
+Table altered.
+
+SQL> ALTER TABLE term
+  2  ADD CONSTRAINT term_termid_PK PRIMARY KEY (termid);
+
+Table altered.
+
+SQL> ALTER TABLE location
+  2  ADD CONSTRAINT location_locid_PK PRIMARY KEY (locid);
+
+Table altered.
+
+SQL> ALTER TABLE student
+  2  ADD CONSTRAINT student_studid_PK PRIMARY KEY (studid);
+
+Table altered.
+
+SQL> ALTER TABLE course_section
+  2  ADD CONSTRAINT course_section_csectionid_PK PRIMARY KEY (csectionid);
+
+Table altered.
+
+SQL> ALTER TABLE enrollment
+  2  ADD CONSTRAINT enroll_studid_csectionid_PK PRIMARY KEY (studid,csectionid);
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE course_section
+  2  ADD CONSTRAINT course_section_courseid_FK FOREIGN KEY (courseid)
+  3  REFERENCES course(courseid);
+
+Table altered.
+
+SQL> ALTER TABLE course_section
+  2  ADD CONSTRAINT course_section_termid_FK FOREIGN KEY (termid)
+  3  REFERENCES term(termid);
+
+Table altered.
+
+SQL> ALTER TABLE course_section
+  2  ADD CONSTRAINT course_section_locid_FK FOREIGN KEY (locid)
+  3  REFERENCES location(locid);
+
+Table altered.
+
+SQL> ALTER TABLE enrollment
+  2  ADD CONSTRAINT enrollment_studid_FK FOREIGN KEY (studid)
+  3  REFERENCES student(studid);
+
+Table altered.
+
+SQL> ALTER TABLE enrollment
+  2  ADD CONSTRAINT enrollment_csectionid_FK FOREIGN KEY (csectionid)
+  3  REFERENCES course_section(csectionid);
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE course
+  2  MODIFY(coursename CONSTRAINT course_coursename_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE student
+  2  MODIFY(sname CONSTRAINT student_sname_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE location
+  2  MODIFY(building CONSTRAINT location_building_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE course_section
+  2  MODIFY (maxcapacity CONSTRAINT course_section_maxcapacity_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE term
+  2  MODIFY(description CONSTRAINT term_description_NN NOT NULL);
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE term
+  2  ADD (status VARCHAR2(10));
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE term
+  2  ADD CONSTRAINT term_status_CK CHECK (status in ('OPEN','CLOSED'));
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE location
+  2  MODIFY (room CONSTRAINT location_room_UK UNIQUE);
+
+Table altered.
+
+SQL> 
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+COURSE                                                                          
+TERM                                                                            
+LOCATION                                                                        
+STUDENT                                                                         
+COURSE_SECTION                                                                  
+ENROLLMENT                                                                      
+
+6 rows selected.
+
+SQL> 
+SQL> DESC course;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ COURSEID                                  NOT NULL NUMBER
+ COURSENAME                                NOT NULL VARCHAR2(40)
+ CREDITS                                            NUMBER
+
+SQL> DESC term;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ TERMID                                    NOT NULL NUMBER
+ DESCRIPTION                               NOT NULL VARCHAR2(50)
+ STATUS                                             VARCHAR2(10)
+
+SQL> DESC location;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ LOCID                                     NOT NULL NUMBER
+ BUILDING                                  NOT NULL VARCHAR2(20)
+ ROOM                                               NUMBER
+
+SQL> DESC student;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ STUDID                                    NOT NULL NUMBER
+ SNAME                                     NOT NULL VARCHAR2(50)
+ BIRTHDATE                                          DATE
+
+SQL> DESC course_section;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CSECTIONID                                NOT NULL NUMBER
+ MAXCAPACITY                               NOT NULL NUMBER
+ COURSEID                                           NUMBER
+ TERMID                                             NUMBER
+ LOCID                                              NUMBER
+
+SQL> DESC enrollment;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ STUDID                                    NOT NULL NUMBER
+ CSECTIONID                                NOT NULL NUMBER
+ GRADE                                              NUMBER(3,2)
+
+SQL> 
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+COURSE_COURSEID_PK             P COURSE                         ENABLED         
+TERM_TERMID_PK                 P TERM                           ENABLED         
+LOCATION_LOCID_PK              P LOCATION                       ENABLED         
+STUDENT_STUDID_PK              P STUDENT                        ENABLED         
+COURSE_SECTION_CSECTIONID_PK   P COURSE_SECTION                 ENABLED         
+ENROLL_STUDID_CSECTIONID_PK    P ENROLLMENT                     ENABLED         
+COURSE_SECTION_COURSEID_FK     R COURSE_SECTION                 ENABLED         
+COURSE_SECTION_TERMID_FK       R COURSE_SECTION                 ENABLED         
+COURSE_SECTION_LOCID_FK        R COURSE_SECTION                 ENABLED         
+ENROLLMENT_STUDID_FK           R ENROLLMENT                     ENABLED         
+ENROLLMENT_CSECTIONID_FK       R ENROLLMENT                     ENABLED         
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+COURSE_COURSENAME_NN           C COURSE                         ENABLED         
+STUDENT_SNAME_NN               C STUDENT                        ENABLED         
+LOCATION_BUILDING_NN           C LOCATION                       ENABLED         
+COURSE_SECTION_MAXCAPACITY_NN  C COURSE_SECTION                 ENABLED         
+TERM_DESCRIPTION_NN            C TERM                           ENABLED         
+TERM_STATUS_CK                 C TERM                           ENABLED         
+LOCATION_ROOM_UK               U LOCATION                       ENABLED         
+
+18 rows selected.
+
+SQL> 
+SQL> SPOOL OFF;

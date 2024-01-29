@@ -1,0 +1,217 @@
+Project Part 10
+Q1
+  -- bottom up
+-- find capacity of CR 103
+   connect des03/des03
+  SELECT capacity
+  FROM   location
+  WHERE bldg_code = 'CR' AND room = 103;     35
+
+-- find location with capacity = 35
+  SELECT bldg_code , room
+  FROM   location 
+  WHERE  capacity = 35;       CR  103 , ...
+== SELECT bldg_code , room
+  FROM   location 
+  WHERE  capacity = (SELECT capacity
+                     FROM   location
+                     WHERE bldg_code = 'CR' AND room = 103);
+
+-- top down
+  SELECT bldg_code, room
+  FROM   location
+  WHERE  capacity = (SELECT capacity 
+                     FROM   location 
+                     WHERE  bldg_code = 'CR' AND room = 35);
+-----------------------------------------------------
+ q2 -- bottom up
+    -- find f_id of Kim Cox
+  SELECT f_id
+  FROM   faculty
+  WHERE  f_last = 'Cox' AND f_first = 'Kim';      1
+
+    -- find all c_sec_id given by f_id 1
+  SELECT c_sec_id
+  FROM   course_section
+  WHERE  f_id = 1;                6,7,11
+== SELECT c_sec_id
+  FROM   course_section
+  WHERE  f_id = (SELECT f_id
+                 FROM   faculty
+                 WHERE  f_last = 'Cox' AND f_first = 'Kim');
+  SELECT s_id
+  FROM   enrollment
+  WHERE  c_sec_id IN (6,7,11);        1,2,4,5,6
+== SELECT s_id
+  FROM   enrollment
+  WHERE  c_sec_id IN (SELECT c_sec_id
+                      FROM   course_section
+                      WHERE  f_id = (SELECT f_id
+                                     FROM   faculty
+                 WHERE  f_last = 'Cox' AND f_first = 'Kim'));
+
+SELECT s_last, s_first, course_name, term_desc, grade
+FROM   student s, course c, term t, enrollment e, 
+         course_section cs
+WHERE  cs.course_id = c.course_id
+AND    cs.term_id = t.term_id
+AND    cs.c_sec_id = e.c_sec_id
+AND    e.s_id = s.s_id
+AND    e.s_id IN (1,2,4,5,6);
+
+==SELECT s_last, s_first, course_name, term_desc, grade
+FROM   student s, course c, term t, enrollment e, 
+         course_section cs
+WHERE  cs.course_id = c.course_id
+AND    cs.term_id = t.term_id
+AND    cs.c_sec_id = e.c_sec_id
+AND    e.s_id = s.s_id
+AND    e.s_id IN (SELECT s_id
+  FROM   enrollment
+  WHERE  c_sec_id IN (SELECT c_sec_id
+                      FROM   course_section
+                      WHERE  f_id = (SELECT f_id
+                                     FROM   faculty
+                 WHERE  f_last = 'Cox' AND f_first = 'Kim')));
+
+Q3
+-- find the c_id of Mark Myers
+   SELECT c_id
+   FROM   consultant
+   WHERE  c_last = 'Myers' AND c_first = 'Mark' ;   100
+
+-- find the p_id of c_id 100
+   SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = 100;           2,7
+== SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = (SELECT c_id
+                  FROM   consultant
+             WHERE  c_last = 'Myers' AND c_first = 'Mark');
+
+--   find the c_id with p_id = 2 or p_id = 7
+   SELECT distinct c_id
+   FROM   project_consultant
+   WHERE  p_id IN (2,7) ;           100, 102, 105
+== SELECT distinct c_id
+   FROM   project_consultant
+   WHERE  p_id IN (SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = (SELECT c_id
+                  FROM   consultant
+             WHERE  c_last = 'Myers' AND c_first = 'Mark'));
+
+   SELECT c_last, c_first
+   FROM   consultant
+   WHERE  c_id IN (100, 102, 105);
+== SELECT c_last, c_first
+   FROM   consultant
+   WHERE  c_id IN (SELECT distinct c_id
+   FROM   project_consultant
+   WHERE  p_id IN (SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = (SELECT c_id
+                  FROM   consultant
+             WHERE  c_last = 'Myers' AND c_first = 'Mark')));
+  
+       
+q4  -- find the c_id of Mark Myers
+   SELECT c_id
+   FROM   consultant
+   WHERE  c_last = 'Myers' AND c_first = 'Mark' ;   100
+
+-- find the p_id of c_id 100
+   SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = 100;           2,7
+== SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = (SELECT c_id
+                  FROM   consultant
+             WHERE  c_last = 'Myers' AND c_first = 'Mark'); 
+
+-- find the project name and the manager of p_id 2, 7
+   SELECT project_name, c_last, c_first
+   FROM   project p, consultant c
+   WHERE  c.c_id = p.mgr
+   AND    p.p_id IN (2,7);
+== SELECT project_name, c_last, c_first
+   FROM   project p, consultant c
+   WHERE  c.c_id = p.mgr
+   AND    p.p_id IN (SELECT p_id
+   FROM   project_consultant
+   WHERE  c_id = (SELECT c_id
+                  FROM   consultant
+             WHERE  c_last = 'Myers' AND c_first = 'Mark'));
+
+Q5
+   -- find client id of Morningstar Bank
+   SELECT client_id
+   FROM   client
+   WHERE  client_name = 'Morningstar Bank';  4
+
+   -- find the p_id of client 4
+   SELECT p_id
+   FROM   project 
+   WHERE  client_id = 4;
+== SELECT p_id
+   FROM   project 
+   WHERE  client_id = (SELECT client_id
+                       FROM   client
+           WHERE  client_name = 'Morningstar Bank'); 4
+
+-- find the c_id with p_id = 4
+  SELECT c_id
+  FROM   project_consultant
+  WHERE  p_id = 4;
+== SELECT c_id
+  FROM   project_consultant
+  WHERE  p_id = (SELECT p_id
+   FROM   project 
+   WHERE  client_id = (SELECT client_id
+                       FROM   client
+           WHERE  client_name = 'Morningstar Bank')); 100, 102, 104
+-- find the c_last, c_first of the above
+  SELECT c_last, c_first
+  FROM   consultant
+  WHERE  c_id IN (100, 102, 104);
+==
+   SELECT c_last, c_first
+  FROM   consultant
+  WHERE  c_id IN (SELECT c_id
+  FROM   project_consultant
+  WHERE  p_id = (SELECT p_id
+   FROM   project 
+   WHERE  client_id = (SELECT client_id
+                       FROM   client
+           WHERE  client_name = 'Morningstar Bank')));
+Q6
+   -- find the date receive of inv_id 12 ship_id = 4
+
+    SELECT sl_date_received
+    FROM   shipment_line
+    WHERE  ship_id = 4 AND inv_id = 12;   Dec 8 2022
+
+   -- find the inv_id receive on Dec 8 2022
+    SELECT inv_id
+    FROM   shipment_line
+    WHERE  sl_date_received = Dec 8 2022;
+== SELECT inv_id
+    FROM   shipment_line
+    WHERE  sl_date_received = (SELECT sl_date_received
+                          FROM   shipment_line
+                     WHERE  ship_id = 4 AND inv_id = 12);
+
+-- join with others table
+    SELECT item_desc, inv.inv_id, color, inv_size, sl_quantity
+    FROM   item i , inventory inv, shipment_line sl
+    WHERE  i.item_id = inv.item_id
+    AND    inv.inv_id = sl.inv_id
+    AND    inv.inv_id IN (SELECT inv_id
+    FROM   shipment_line
+    WHERE  sl_date_received = (SELECT sl_date_received
+                          FROM   shipment_line
+                     WHERE  ship_id = 4 AND inv_id = 12))
+   AND NOT (ship_id = 4 AND inv_id = 12);
+                                       

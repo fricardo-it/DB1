@@ -1,0 +1,189 @@
+
+
+
+
+
+
+Menu du jour
+  Solution of Part 8
+  Lecture on GROUP FUNCTION
+BREAK
+  Enjoy Part 9
+A LA CASA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Solution of Part 8
+Q1
+SELECT c_sec_id, c_sec_day, c_sec_time, 
+TO_CHAR(c_sec_time,'HH:MI:SS')
+FROM   course_section
+WHERE c_sec_day LIKE '%M%';
+
+Q2
+SELECT s_last, s_first, s_mi, NVL(s_mi,'N/A')
+FROM   student
+WHERE  s_mi IS NULL;
+
+
+Q3
+SELECT c_sec_id, c_sec_day, c_sec_time, TO_CHAR(c_sec_time,'HH:MI AM'),
+     LTRIM(TO_CHAR(c_sec_time,'HH:MI AM'),'0')
+FROM   course_section;
+
+Q4
+SELECT s_id, s_last, s_first, time_enrolled
+FROM  student;
+UPDATE student
+SET time_enrolled = time_enrolled + TO_YMINTERVAL('1-0');
+
+
+SELECT c_sec_id, c_sec_duration FROM course_section;
+UPDATE course_section
+SET c_sec_duration = c_sec_duration + TO_DSINTERVAL('0 00:30:00');
+
+q5
+SELECT * 
+FROM   enrollment
+WHERE grade IS NULL OR grade <>'C';
+
+GROUP FUNCTION   
+
+-------------------
+-------------------- 
+  COUNT(*) 
+
+connect scott/tiger
+
+Ex1:  Write a query to display the number of rows in table emp
+
+    SELECT COUNT(*) 
+    FROM   emp;
+
+  COUNT (name_of_column)
+Return the number of NOT NULL value in the specified column
+Ex2:  Write a query to display the number of employee who earn
+a commission
+
+   sol:  
+         SELECT COUNT(comm)
+         FROM   emp;
+
+SELECT empno, ename, sal, comm
+FROM  emp;
+
+Ex3:  Write a query to display the number of employee who 
+DO NOT earn a commission
+
+  SELECT COUNT(*) - COUNT(comm)
+  FROM   emp;
+
+  SELECT COUNT(empno) - COUNT(comm)
+  FROM   emp;
+
+  SELECT COUNT(*) 
+  FROM   emp
+  WHERE  comm IS NULL;
+-----------------------
+MIN (name_of_column) / MAX (name_of_column)/AVG (name_of_column)
+SUM (name_of_column)
+Return the Maximum/Minimum/Average/Sum of the specified column
+
+Ex4:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees.
+
+  SELECT MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp;
+
+Ex5:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH department (hint: use GROUP BY)
+
+SELECT deptno , MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+GROUP BY deptno;
+
+Ex6:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH job (hint: use GROUP BY)
+
+SELECT job , MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+GROUP BY job;
+
+Ex7:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH job of EACH department (hint: use GROUP BY)
+
+SELECT job , deptno, MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+GROUP BY job, deptno
+ORDER BY deptno;
+
+Ex8:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH job Except the job 
+PRESIDENT(hint: use GROUP BY)
+
+SELECT job, MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+WHERE job <> 'PRESIDENT'
+GROUP BY job;
+
+Ex8:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH department Except the job 
+PRESIDENT OR MANAGER(hint: use GROUP BY)
+
+SELECT deptno, MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+WHERE job NOT IN('PRESIDENT', 'MANAGER') 
+GROUP BY deptno;
+
+
+Ex9:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH department Except the job 
+PRESIDENT OR MANAGER AND the MINIMUM salary MUST
+be greater than 1000
+
+
+SELECT deptno, MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+WHERE job NOT IN('PRESIDENT', 'MANAGER') 
+GROUP BY deptno
+HAVING MIN(sal) > 1000;
+
+
+
+
+
+
+Ex10:  Display the Maximum/Minimum/Average/Sum of salary of
+all employees of EACH department Except the job 
+PRESIDENT OR MANAGER AND the SUM of the salary MUST
+be greater than 2000(hint: use HAVING)
+
+SELECT deptno, MAX(sal), MIN(sal) , AVG(sal) , SUM(sal)
+  FROM   emp
+WHERE job NOT IN('PRESIDENT', 'MANAGER') 
+GROUP BY deptno
+HAVING SUM(sal) > 2000;

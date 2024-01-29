@@ -1,0 +1,17 @@
+SQL> CREATE TABLE customer(custid NUMBER, custname VARCHAR2(50));
+
+Table created.
+
+SQL> CREATE TABLE product(productid NUMBER, description VARCHAR2(50), price NUMBER(10,2));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, payment VARCHAR2(10), custid NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE orders_line(productid NUMBER, oid NUMBER, quantity NUMBER);
+
+Table created.
+
+SQL> exit

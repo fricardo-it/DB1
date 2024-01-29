@@ -1,0 +1,506 @@
+Menu du jour
+  Single row function
+break
+  Continue with project part 7
+A la casa
+
+
+
+
+
+script 7northwoods
+connect des03/des03
+
+SINGLE ROW FUNCTION
+
+
+  -- Character Datatype
+
+  UPPER (string) / LOWER (string)
+Return the string with all the characters converted into
+UPPER or LOWER case
+
+Ex:  SELECT s_last, UPPER(s_last), LOWER (s_last)
+     FROM   student;
+
+     SELECT s_id,  s_dob,  s_last  from  student  WHERE  s_last = 'MILLER';
+
+
+   
+SELECT S_ID, S_DOB,  S_Last  FROM student  WHERE UPPER (s_last) =  'MILLER' ;
+
+
+
+  INITCAP (string)
+Return the string with only the first character in upper case
+
+Ex:  SELECT f_rank, INITCAP (f_rank) 
+     FROM   faculty;
+
+
+REPLACE (string, search_string, replacement_string)
+Replace  the  occurent  of  the  search_string  
+with the  replacement_string
+
+
+
+
+
+Ex: SELECT term_desc, REPLACE (term_desc, '200', '202')
+    FRom   term;
+
+
+
+
+
+
+SUBSTR (string, start_position, length)
+Return a string starting at the start position and of
+specified length (use negative start poisition to start
+from the right side)
+
+
+
+
+Ex:  SELECT term_desc, SUBSTR(term_desc, 1, 4)
+     FROM   term;
+
+
+
+
+
+
+
+
+
+SELECT term_desc, SUBSTR(term_desc, -4, 4)
+     FROM   term;
+
+
+
+
+
+LPAD/ RPAD (string, number of characters, padding character)
+Return the value of the string with specified number of
+padding character added to the LEFT or to the RIGHT
+
+
+
+
+
+
+
+
+
+Ex:  SELECT course_id, credits, LPAD(credits,2,'0'),
+        RPAD(credits,5,'*')
+     FROM course;
+
+
+       UPDATE course SET credits = 11 WHERE course_id = 3;
+
+
+
+
+
+
+LTRIM/ RTRIM (string, search_string)
+Return the string with the occurence of the search string
+TRIMMED on the left side OR of the right side
+
+
+
+
+
+
+
+Ex:   SELECT call_id, LTRIM (call_id, 'MIS ')
+      FROM   course;
+
+
+
+
+
+
+
+
+
+
+LENGTH (string)
+Return an INTEGER representing the string's length
+
+
+
+
+
+
+SELECT LENGTH ('ciro'), LENGTH('Jonh') ,term_desc,
+     LENGTh (term_desc)
+FROM   term;
+
+
+
+
+
+
+
+---------------------------
+NUMBER DATATYPE
+
+  ABS(number) Return the abolute value of a number
+
+
+
+
+
+
+
+
+
+
+
+
+    Ex:  SELECT ABS(-5) , ABS(5)
+         FROM   dual;
+
+
+
+
+
+
+
+
+
+   CEIL (number)
+Return the value of the number round UP to the next INTEGER
+
+  Ex:  SELECT CEIL(259.00), CEIL(259.01), CEIL(259.99)
+       FROM dual;
+
+
+
+
+
+FLOOR (number)
+Return the value of the number round DOWN to the previous INTEGER
+
+  Ex:  SELECT FLOOR(259.00), FLOOR(259.01), FLOOR(259.99)
+       FROM dual;
+
+
+
+
+
+
+ROUND (number, precision) Return the number rounded to the
+specified precision
+
+
+
+
+
+
+
+SELECT  ROUND(456.4)    ,  ROUND(456.5)  ,  ROUND  (456.6)  from  DUAL;
+
+
+
+
+
+
+
+
+Ex:   SELECT ROUND(123.456)
+      FROM   dual;               123
+
+      SELECT ROUND(123.456, 1)
+      FROM   dual;             
+
+
+  123.5
+
+      SELECT ROUND(123.456, 2)
+      FROM   dual;               123.46
+
+      SELECT ROUND(456.123, -1)
+      FROM   dual;               
+
+
+
+
+ 460
+
+       SELECT ROUND(456.123, -2)
+      FROM    dual;               500
+
+      SELECT ROUND(456.123, -3)
+      FROM    dual;             0
+
+      SELECT ROUND(500.123, -3)
+      FROM    dual;            1000
+
+
+POWER(number, power) 
+Return the value representing a number raised to the 
+specified power
+
+   Ex:  SELECT Power(2,2), Power(2,3), Power(7,7)
+        FROM dual;
+
+
+
+
+
+MOD (number, divisor) Return the remainder (modulus) for
+a number and divisor
+
+   Ex:  SELECT MOD(8,2), MOD(10,3), MOD (150, 20)
+        FROM   dual;
+
+
+
+
+-------------------  DATE datatype ------------
+
+TO_CHAR (date, format) Convert a date into character with
+the specified format
+
+Ex:  SELECT sysdate
+     FROM   dual;
+ 
+     SELECT sysdate
+     FROM   dual;
+
+     SELECT TO_CHAR(sysdate, 'DD Month YYYY Day Year HH:MI:SS Am')
+     FROM   dual;
+
+
+
+
+
+
+
+
+    SELECT TO_CHAR(TO_DATE('10 08 2002', 'DD MM YYYY'), 'DD Month YYYY Day Year HH:MI:SS')
+     FROM   dual;
+
+
+
+
+
+
+
+
+
+-- round with date
+
+  SELECT ROUND(TO_DATE('16 01 1992', 'DD MM YYYY'),'MONTH') from  DUAL;
+    
+ 1  OF fEB 92
+
+
+
+
+  SELECT ROUND(TO_DATE('30 06 1983', 'DD MM YYYY'),'year')
+  FROM   dual;  83 01 01
+
+
+
+       SELECT ROUND(TO_DATE('01 07 1983', 'DD MM YYYY'),'year')
+  FROM   dual;
+
+
+
+
+  SELECT ROUND(sysdate,'year')
+  FROM dual;
+
+
+
+
+    SELECT ROUND(sysdate,'month')
+  FROM dual;
+
+--
+   ADD_MONTHS (date, month_to_add) Return a date that is the
+specified month after the input date
+
+  Ex: 
+
+      SELECT ADD_MONTHS(sysdate, 9)
+      FROM   dual;
+
+
+
+
+
+
+
+
+-- MONTHS_BETWEEN (date1, date2) Return number of months
+including decimal faction between the 2 dates
+
+
+
+
+  Ex:  SELECT MONTHS_BETWEEN(sysdate, TO_DATE('10 08 2002', 'DD MM YYYY')) from  dual;
+          months
+
+today is 10 Nov 2022  --- result is  243
+
+
+
+
+
+
+
+
+-- find age
+      SELECT FLOOR(MONTHS_BETWEEN(sysdate, TO_DATE('10 08 2002', 'DD MM YYYY'))/12)
+       FROM dual;   20
+
+
+
+
+
+-- LAST_DAY (date) Return the date that is the last day of the months specified in the
+input date
+
+
+
+
+  Ex:  SELECT LAST_DAY (TO_DATE('19 02 2022', 'DD MM YYYY'))
+        FROM dual;  22-02-28
+
+
+SELECT LAST_DAY (TO_DATE('19 02 2024', 'DD MM YYYY'))
+        FROM dual;  24-02-29
+
+
+       SELECT LAST_DAY (TO_DATE('19 02 2024', 'DD MM YYYY'))
+        FROM dual;
+
+
+
+
+
+
+
+
+
+---------- FUNCTION works WITH any datatype ------------
+connect scott/tiger
+
+Ex: Display the employee name, monthly salary, commission , and
+the annual salary of all employees (hint: use NVL function)
+
+   SELECT empno, sal, comm, sal*12 + comm FROM emp;
+
+
+comm IS NULL = unknown
+
+
+
+
+     connect  scott/tiger;
+      SELECT empno,  ename, sal,  comm , sal*12 +  comm  "Annual Salary"  FROM  emp;
+
+
+
+
+
+  SELECT empno , ename, sal, comm , NVL(comm,50),  
+         sal*12+NVL(comm,0) "Annual Salary"
+  FROM   emp;
+
+
+Ex: For employee who earns a commission, replace that amount with
+2000, and for those who do not have a commission, give them 500.
+Display NEW annual salary of all employees (hint: use NVL2 function)
+
+
+
+
+
+
+
+
+
+
+SELECT empno , ename, sal, comm , NVL2(comm,2000,500),  sal*12  +  NVL2(comm,2000,500) 
+"Annual Salary"
+FROM   emp;
+
+
+
+
+
+    --------------- INTERVAL datatype ---------------
+
+    INTERVAL   Year to Month
+    INTERVAL   DAY TO second
+
+
+   10 - 9
+
+    connect des03/des03
+    desc student
+     time_enrolled     
+
+
+
+
+Ex: Display the student name, time_enrolled, and the ARRIVAL time
+  of all students
+
+  SELECT s_last, s_first,  time_enrolled, 
+         sysdate - time_enrolled "Arrival Date"
+   FROM student;
+
+6    4 month         July               
+
+
+
+
+
+
+  
+Ex:  Display the student name, time_enrolled, and time_enrolled
+with 11 months added (hint: USE TO_YMINTERVAL to convert a string
+represent an interval to INTERVAL datatype)
+
+
+
+SELECT s_last, s_first,  time_enrolled, time_enrolled + 
+           TO_YMINTERVAL ('0-11') "11 Month longer"
+FROM   student;
+
+
+
+
+
+
+
+------------------ DAY TO SECOND -------------
+Ex:  Display the c_sec_id, c_sec_duration of all course section
+
+    SELECT c_sec_id, c_sec_duration
+    FROM   course_section;
+
+Ex: Display the c_sec_id, c_sec_duration , and c_sec_duration with
+30 second longer (hint: use the TO_DSINTERVAL to convert a string
+representing an interval into INTERVAL datatype)
+
+  SELECT c_sec_id, c_sec_duration, c_sec_duration +
+    TO_DSINTERVAL ('0 00:00:30') "3O sec longer"
+   FROM course_section;
+
+
+
+Ex: Display the c_sec_id, c_sec_duration , and c_sec_duration with
+23 hours 59 minutes and 30 second longer (hint: use the TO_DSINTERVAL to convert a string
+representing an iterval into INTERVAL datatype)
+
+SELECT c_sec_id, c_sec_duration, c_sec_duration +
+    TO_DSINTERVAL ('0 23:59:30') 
+   FROM course_section;

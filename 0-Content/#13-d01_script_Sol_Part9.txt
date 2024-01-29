@@ -1,0 +1,293 @@
+Dec 1  Solve Part 9 + Last Lecture  
+    8  Project Part BONUS
+    13 Simulation Final
+ Dec 15 Solve Simulation , Last minute questions  ROOM 8805  3:00 - 6:00
+  
+  20  FINAL EXAM  room 3333   12:00  Pm
+
+
+
+Solution Part 9
+Q1:
+   SELECT MAX(sal), MIN(sal) FROM emp;
+
+Q2:
+   SELECT deptno ,SUM(sal), MAX(sal), MIN(sal) 
+   FROM emp
+   WHERE job <> 'PRESIDENT'
+   GROUP BY deptno
+   HAVING MIN(sal) > 1000;
+Q3
+   SELECT item_id,SUM(inv_qoh),MIN(inv_price), MAX(inv_price)
+   FROM   inventory
+   WHERE  inv_size IN ('L','M')
+   GROUP BY item_id
+   HAVING SUM(inv_qoh) > 200;
+q4
+SELECT item_id,SUM(inv_qoh),MIN(inv_price), MAX(inv_price)
+   FROM   inventory
+   WHERE  inv_size ='S' OR inv_size IS NULL
+   GROUP BY item_id
+   HAVING SUM(inv_qoh) > 100;
+
+q5
+SELECT inventory.item_id,SUM(inv_qoh),MIN(inv_price),item_desc, MAX(inv_price)
+   FROM   inventory, item
+   WHERE  inventory.item_id = item.item_id
+   AND inv_size ='S' OR inv_size IS NULL
+   GROUP BY inventory.item_id,item_desc
+   HAVING SUM(inv_qoh) > 100;
+
+Q6
+   SELECT MAX(s_dob) "Youngest", MIN(s_dob) "Oldest"
+   FROM   student;
+Q7
+  SELECT s_class, MAX(s_dob) "Youngest", MIN(s_dob) "Oldest"
+   FROM   student
+  GROUP BY s_class;
+------------------------------------------------------------
+
+
+ SET OPERATORs
+-- UNION
+-- UNION ALL
+-- INTERSECT
+-- MINUS
+
+Ex1: Using database Northwoods University, write a query to
+display all human beeing of the University (student, faculty
+member) in the same list. (hint: use set operator UNION)
+
+
+ sol:
+
+
+
+
+   Find all students
+     SELECT s_last, s_first
+     FROM   student;
+
+
+   Find all faculty members
+     SELECT f_last, f_first
+     FROM   faculty;
+
+
+
+Use UNION
+
+     SELECT s_last, s_first
+     FROM   student
+UNION
+     SELECT f_last, f_first
+     FROM   faculty;
+
+
+
+Ex2:  Using database Software Expert, write a query to
+display all consultants who have the skill number 1 and all
+consultant who work for project number 5 in the same list.
+ (hint: use set operator UNION)
+connect des04/des04
+
+
+sol:
+  connect des04/des04
+   Find all consultants who have the skill number 1
+
+      a.  find the c_id that have the skill_id 1
+    SELECT c_id 
+    FROM   consultant_skill
+    WHERE  skill_id = 1;    
+
+        100, 103
+
+      b.  find the name of consultant number 100, 103
+    SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(100,103);
+
+
+
+==  SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   consultant_skill
+                   WHERE  skill_id = 1);
+
+Find all consultants who work in project number 5
+      a.  find the c_id that work in project number 5
+    SELECT c_id 
+    FROM   project_consultant
+    WHERE  p_id = 5;   
+
+         103,105
+      b.  find the name of consultant number 103, 105
+    SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(103,105);
+
+
+
+==  SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   project_consultant
+                   WHERE  p_id = 5);
+
+Use UNION
+
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   consultant_skill
+                   WHERE  skill_id = 1)
+UNION
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   project_consultant
+                   WHERE  p_id = 5);
+
+
+
+
+
+
+
+Ex3:  Modify the query of example 2 to display the name of the
+consultant TWICE if the consultant have the skill number 1 and
+work in project number 5. (hint: Use set operator UNION ALL)
+
+
+
+
+
+
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   consultant_skill
+                   WHERE  skill_id = 1)
+UNION ALL
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   project_consultant
+                   WHERE  p_id = 5);
+
+
+
+
+Ex4:  Modify the query of example 2 to display ONLY the name of the
+consultant who have BOTH the skill number 1 and
+work in project number 5. (hint: Use set operator INTERSECT)
+
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   consultant_skill
+                   WHERE  skill_id = 1)
+INTERSECT
+SELECT c_last, c_first
+    FROM   consultant
+    WHERE  c_id IN(SELECT c_id 
+                   FROM   project_consultant
+                   WHERE  p_id = 5);
+
+LAST EXAMPLE OF THE TERM
+  Using database Nortwoods University, write a query to display
+all faculty members who teach in building 'BUS', but his/her
+office is not located in the same building. (hint: Use set
+operator MINUS)
+
+
+connect des03/des03
+   Find the teacher who teach in building 'BUS'
+     -- find the loc_id of build 'BUS'
+       SELECT loc_id
+       FROM   location
+       WHERE  bldg_code = 'BUS';  5,6,7,8,9,10,11
+
+
+     -- find the f_id who teach in location 5,6,7,8,9,10,11
+       SELECT DISTINCT f_id
+       FROM   course_section
+       WHERE  loc_id IN (5,6,7,8,9,10,11);  1,2,3,4
+
+
+
+==     SELECT DISTINCT f_id
+       FROM   course_section
+       WHERE  loc_id IN (SELECT loc_id
+                         FROM   location
+                         WHERE  bldg_code = 'BUS');  1,2,3,4
+
+
+      -- find the f_last, f_first of f_id 1,2,3,4
+       SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (1,2,3,4);
+==
+   SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT DISTINCT f_id
+                       FROM   course_section
+                       WHERE  loc_id IN (SELECT loc_id
+                         FROM   location
+                         WHERE  bldg_code = 'BUS'));
+
+-- Find all faculty members who have the office in building 'BUS'
+      -- find the loc_id of build 'BUS'
+       SELECT loc_id
+       FROM   location
+       WHERE  bldg_code = 'BUS';  5,6,7,8,9,10,11
+
+
+
+       -- find the f_id who have the loc_id  5,6,7,8,9,10,11
+       SELECT f_id
+       FROM   faculty
+       WHERE  loc_id IN (5,6,7,8,9,10,11);
+==     
+       SELECT f_id
+       FROM   faculty
+       WHERE  loc_id IN (SELECT loc_id
+                         FROM   location
+                         WHERE  bldg_code = 'BUS'); 1,2,4
+-- find the f_last, f_first of f_id 1,2,4
+       SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (1,2,4);
+==
+      SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT f_id
+                       FROM   faculty
+                        WHERE  loc_id IN (SELECT loc_id
+                                      FROM   location
+                                    WHERE  bldg_code = 'BUS'));
+USE set operator MINUS
+
+
+SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT DISTINCT f_id
+                       FROM   course_section
+                       WHERE  loc_id IN (SELECT loc_id
+                         FROM   location
+                         WHERE  bldg_code = 'BUS'))
+MINUS
+SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT f_id
+                       FROM   faculty
+                        WHERE  loc_id IN (SELECT loc_id
+                                      FROM   location
+                                    WHERE  bldg_code = 'BUS'));
+
+Last BONUS:
+Using database Northwoods University, write a query that use
+set operator to display the course that Miler Sarah and Umato Brian
+taken toghether.

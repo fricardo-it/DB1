@@ -1,0 +1,197 @@
+SQL> 
+SQL> --create tables
+SQL> CREATE TABLE customer(custid NUMBER, custname VARCHAR2(50) CONSTRAINT customer_custname_NN NOT NULL, gender CHAR(1),
+  2  CONSTRAINT customer_custid_PK PRIMARY KEY (custid),
+  3  CONSTRAINT customer_gender_CK CHECK (gender in ('M','m','F','f')));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE product(productid NUMBER, description VARCHAR2(50) CONSTRAINT product_description_NN NOT NULL, price NUMBER(10,2),
+  2  CONSTRAINT product_productid_PK PRIMARY KEY (productid),
+  3  CONSTRAINT product_price_CK CHECK (price >= 0));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, payment VARCHAR2(10) , custd NUMBER,
+  2  CONSTRAINT orders_oid_PK PRIMARY KEY (oid),
+  3  CONSTRAINT orders_custd_FK FOREIGN KEY (custd)
+  4  REFERENCES customer(custid),
+  5  CONSTRAINT orders_payment_UK UNIQUE (payment));
+
+Table created.
+
+SQL> 
+SQL> 
+SQL> CREATE TABLE orders_line(productid NUMBER, oid NUMBER, quantity NUMBER,
+  2  CONSTRAINT orders_line_productid_oid_PK PRIMARY KEY (productid,oid),
+  3  CONSTRAINT orders_line_productid_FK FOREIGN KEY (productid)
+  4  REFERENCES product(productid),
+  5  CONSTRAINT orders_oid_FK FOREIGN KEY (oid)
+  6  REFERENCES orders(oid));
+
+Table created.
+
+SQL> --list tables
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+CUSTOMER                                                                        
+PRODUCT                                                                         
+ORDERS                                                                          
+ORDERS_LINE                                                                     
+
+SQL> 
+SQL> --desc tables
+SQL> DESC customer;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CUSTID                                    NOT NULL NUMBER
+ CUSTNAME                                  NOT NULL VARCHAR2(50)
+ GENDER                                             CHAR(1)
+
+SQL> DESC product;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ DESCRIPTION                               NOT NULL VARCHAR2(50)
+ PRICE                                              NUMBER(10,2)
+
+SQL> DESC orders;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OID                                       NOT NULL NUMBER
+ ODATE                                              DATE
+ PAYMENT                                            VARCHAR2(10)
+ CUSTD                                              NUMBER
+
+SQL> DESC orders_line;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ OID                                       NOT NULL NUMBER
+ QUANTITY                                           NUMBER
+
+SQL> 
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+CUSTOMER_GENDER_CK             C CUSTOMER                       ENABLED         
+CUSTOMER_CUSTNAME_NN           C CUSTOMER                       ENABLED         
+PRODUCT_DESCRIPTION_NN         C PRODUCT                        ENABLED         
+PRODUCT_PRICE_CK               C PRODUCT                        ENABLED         
+ORDERS_OID_FK                  R ORDERS_LINE                    ENABLED         
+ORDERS_LINE_PRODUCTID_FK       R ORDERS_LINE                    ENABLED         
+ORDERS_CUSTD_FK                R ORDERS                         ENABLED         
+CUSTOMER_CUSTID_PK             P CUSTOMER                       ENABLED         
+PRODUCT_PRODUCTID_PK           P PRODUCT                        ENABLED         
+ORDERS_OID_PK                  P ORDERS                         ENABLED         
+ORDERS_PAYMENT_UK              U ORDERS                         ENABLED         
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+ORDERS_LINE_PRODUCTID_OID_PK   P ORDERS_LINE                    ENABLED         
+
+12 rows selected.
+
+SQL> 
+SQL> -- insert values into the tables
+SQL> INSERT INTO customer(custid, custname)
+  2  VALUES (1,'Francisco Ricardo');
+
+1 row created.
+
+SQL> INSERT INTO product(productid, description, price)
+  2  VALUES (1,'PRODUCT-1',1.99);
+
+1 row created.
+
+SQL> INSERT INTO orders(oid, odate, payment, custd)
+  2  VALUES (1,sysdate,'CASH',1);
+
+1 row created.
+
+SQL> INSERT INTO orders_line(productid, oid, quantity)
+  2  VALUES (1,1,10);
+
+1 row created.
+
+SQL> CREATE SEQUENCE customer_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> CREATE SEQUENCE product_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> CREATE SEQUENCE orders_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> 
+SQL> -- insert values into the tables
+SQL> INSERT INTO customer(custid, custname)
+  2  VALUES (customer_seq.NEXTVAL,'CUSTOMER A');
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM customer;
+
+    CUSTID CUSTNAME                                           G                 
+---------- -------------------------------------------------- -                 
+         1 Francisco Ricardo                                                    
+         2 CUSTOMER A                                                           
+
+SQL> 
+SQL> INSERT INTO product(productid, description, price)
+  2  VALUES (product_seq.NEXTVAL,'PRODUCT-A',1.99);
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM product;
+
+ PRODUCTID DESCRIPTION                                             PRICE        
+---------- -------------------------------------------------- ----------        
+         1 PRODUCT-1                                                1.99        
+         2 PRODUCT-A                                                1.99        
+
+SQL> 
+SQL> INSERT INTO orders(oid, odate, payment, custd)
+  2  VALUES (orders_seq.NEXTVAL,sysdate,'CASH',customer_seq.CURRVAL);
+INSERT INTO orders(oid, odate, payment, custd)
+*
+ERROR at line 1:
+ORA-00001: unique constraint (FRANCISCO_RICARDO_TEST_Q5.ORDERS_PAYMENT_UK) 
+violated 
+
+
+SQL> 
+SQL> SELECT * FROM orders;
+
+       OID ODATE     PAYMENT         CUSTD                                      
+---------- --------- ---------- ----------                                      
+         1 25-OCT-22 CASH                1                                      
+
+SQL> 
+SQL> INSERT INTO orders_line(productid, oid, quantity)
+  2  VALUES (product_seq.CURRVAL,orders_seq.CURRVAL,20);
+INSERT INTO orders_line(productid, oid, quantity)
+*
+ERROR at line 1:
+ORA-02291: integrity constraint (FRANCISCO_RICARDO_TEST_Q5.ORDERS_OID_FK) 
+violated - parent key not found 
+
+
+SQL> 
+SQL> SELECT * FROM orders_line;
+
+ PRODUCTID        OID   QUANTITY                                                
+---------- ---------- ----------                                                
+         1          1         10                                                
+
+SQL> 
+SQL> SPOOL OFF;

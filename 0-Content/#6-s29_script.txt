@@ -1,0 +1,129 @@
+--Menu du jour
+-- Review PK , FK
+--  Add:
+   -- UNIQUE
+   -- CHECK
+   -- NOT NULL  
+-- BREAK
+-- Continue with Project Part 3, 4a
+-- A LA CASA
+
+  Create all tables of the design below:
+     MEMBER(MID, name, email)
+     VIDEO (VID, title, price)
+     RENTAL(MID, VID, date_rent, date_return)
+-- add all PKs
+-- add FKs using the E.R.D
+      MEMBER ---E   RENTAL   3---  VIDEO
+-- Make sure that each member have a different email address
+-- Make sure that each video must have a title
+-- Make sure that the price is a positive number
+
+A/ Create the tables and the constraint at the same time
+   connect sys/sys as sysdba;
+   CREATE USER hunter IDENTIFIED BY 123;
+   GRANT connect, resource TO hunter;
+   connect hunter/123;
+   CREATE TABLE member(mid NUMBER, name VARCHAR2(20), email VARCHAR2(40) , 
+   CONSTRAINT member_mid_PK PRIMARY KEY (mid) ,
+   CONSTRAINT member_email_UK UNIQUE (email) );
+
+   CREATE TABLE video(vid NUMBER CONSTRAINT video_vid_PK PRIMARY KEY , 
+          title VARCHAR2(30) CONSTRAINT video_title_NN NOT NULL,
+      price NUMBER (10,2) CONSTRAINT video_price_CK CHECK ( price >= 0) );
+
+-- TESTING
+      INSERT INTO video(vid, title, price)
+      VALUES       (10,'Avata',9.99);
+
+      INSERT INTO video(vid, title)
+      VALUES       (20,'Stars War');
+      INSERT INTO video(vid, price)
+      VALUES       (30, 9.99);
+      INSERT INTO video(vid, title, price)
+      VALUES       (30,'Jaw',-9.99);
+
+      INSERT INTO member(mid, name, email)
+      VALUES     (1,'Hunter','hunter@video.com');
+      INSERT INTO member(mid, name)
+      VALUES     (2,'Eric');
+   UPDATE member SET email = 'Eric@video.com' WHERE mid = 2;
+
+   CREATE TABLE rental (mid NUMBER, vid NUMBER, date_rent DATE, date_return DATE ,
+    CONSTRAINT rental_mid_vid_PK  PRIMARY KEY (mid,vid) ,
+    CONSTRAINT rental_mid_FK FOREIGN KEY (mid)
+    REFERENCES  member(mid)  ,
+    CONSTRAINT rental_vid_FK FOREIGN KEY (vid)
+    REFERENCES  video(vid)   );
+
+   INSERT INTO rental (mid, vid, date_rent , date_return)
+   VALUES  (1,10, sysdate -1, sysdate + 1);
+   INSERT INTO rental (mid, vid, date_rent , date_return)
+   VALUES  (1,99, sysdate -1, sysdate + 1);
+   INSERT INTO rental (mid, vid, date_rent , date_return)
+   VALUES  (99,20, sysdate -1, sysdate + 1);
+   
+
+   SELECT table_name FROM user_tables;
+   DESC member
+
+  SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+Ex2: Create another user and all the tables of example 1 with all the constraints
+added AFTER table creation time.
+
+ connect sys/sys as sysdba;
+   CREATE USER eric IDENTIFIED BY 123;
+   GRANT connect, resource TO eric;
+   connect eric/123;
+
+   CREATE TABLE member(mid NUMBER, name VARCHAR2(20), email VARCHAR2(40) ) ;
+   CREATE TABLE video(vid NUMBER, title VARCHAR2(20), price NUMBER (10,2));
+   CREATE TABLE rental(mid NUMBER, vid NUMBER, date_rent DATE, date_return DATE);
+
+-- add PK
+   ALTER TABLE member
+   ADD CONSTRAINT member_mid_PK PRIMARY KEY (mid);
+   ALTER TABLE video
+   ADD CONSTRAINT video_vid_PK PRIMARY KEY (vid);
+   ALTER TABLE rental
+   ADD CONSTRAINT rental_mid_vid_PK PRIMARY KEY (mid,vid);
+-- add FK
+   ALTER TABLE rental
+   ADD CONSTRAINT rental_mid_FK FOREIGN KEY (mid)
+   REFERENCES member(mid);
+   ALTER TABLE rental
+   ADD CONSTRAINT rental_vid_FK FOREIGN KEY (vid)
+   REFERENCES video(vid);
+-- add UNIQUE
+   ALTER TABLE member
+   ADD CONSTRAINT member_email_UK UNIQUE (email);
+-- add CHECK
+   ALTER TABLE video
+   ADD CONSTRAINT video_price_CK CHECK (price >=0 ) ;
+-- add NOT NULL
+   ALTER TABLE video
+   MODIFY(title CONSTRAINT video_title_NN NOT NULL) ;
+
+
+insert into video(vid, price)
+VALUES (10,9.95);
+
+  Summary
+
+PRIMARY KEY           column, table                 ALTER TABLE  ... ADD CONSTRAINT
+                  (composit key at table level) 
+     
+CHECK                 column, table                 ALTER TABLE  ... ADD CONSTRAINT
+
+UNIQUE                column, table                 ALTER TABLE  ... ADD CONSTRAINT
+
+FOREIGN KEY             table level ONLY            ALTER TABLE  ... ADD CONSTRAINT
+
+NOT NULL                column level ONLY           ALTER TABLE  ... MODIFY( column)
+
+
+
+
+
+

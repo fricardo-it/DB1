@@ -1,0 +1,143 @@
+-- QUESTION 1
+
+-- First step: connecting to sys
+connect sys/sys as sysdba
+
+-- Removing user each running time
+DROP USER nora04 CASCADE;
+
+-- Creating the spool file
+SPOOL C:\\BD1\project_part07.txt
+
+-- Showing the date
+SELECT to_char(sysdate,'DD Month Year Day HH:MI:SS Am') FROM dual;
+
+-- Creating an user
+CREATE USER nora04 IDENTIFIED BY 123;
+
+-- Giving the permission
+GRANT connect, resource TO nora04;
+
+-- Giving permitions
+GRANT CREATE VIEW TO nora04;
+
+-- Connecting the user
+connect nora04/123
+
+-- Running the script
+@C:\BD1\7Software.sql
+
+-- Creating the view
+CREATE OR REPLACE VIEW cons_proj AS
+SELECT c_first, c_last, project_name
+FROM project_consultant r, project p, consultant c
+WHERE c.c_id = r.c_id AND r.p_id = p.p_id
+WITH READ ONLY;
+
+-- Displaying the view
+SELECT * FROM cons_proj;
+
+
+-- QUESTION 2
+
+-- First step: connecting to sys
+connect sys/sys as sysdba
+
+-- Removing user each running time
+DROP USER nora03 CASCADE;
+
+-- Creating an user
+CREATE USER nora03 IDENTIFIED BY 123;
+
+-- Giving the permission
+GRANT connect, resource TO nora03;
+
+-- Giving permitions
+GRANT CREATE VIEW TO nora03;
+
+-- Connecting the user
+connect nora03/123
+
+-- Running the script
+@C:\BD1\7northwoods.sql
+
+-- Creating the view
+CREATE OR REPLACE VIEW student_faculty_1 AS
+SELECT s_first, s_last, s_dob, f_first, f_last
+FROM student s, faculty f
+WHERE f.f_id = s.f_id AND (f.f_id = 1 OR f.f_id = 2)
+WITH CHECK OPTION;
+
+-- Displaying the view
+SELECT * FROM student_faculty_1;
+
+
+-- QUESTION 3
+
+- First step: connecting to sys
+connect sys/sys as sysdba
+
+-- Removing user each running time
+DROP USER nora02 CASCADE;
+
+-- Removing table
+DROP TABLE arch CASCADE CONSTRAINTS;
+
+-- Creating an user
+CREATE USER nora02 IDENTIFIED BY 123;
+
+-- Giving the permission
+GRANT connect, resource TO nora02;
+
+-- Giving permitions
+GRANT CREATE VIEW TO nora02;
+
+-- Connecting the user
+connect nora02/123
+
+-- Running the script
+@C:\BD1\7clearwater.sql
+
+-- Removing table
+DROP TABLE arch CASCADE CONSTRAINTS;
+
+-- Creating the view
+CREATE OR REPLACE FORCE VIEW old_order_detail AS
+SELECT old_o_id, old_inv_id, old_ol_quantity, o_date, o_methpmt, item_desc, c_last, c_first
+FROM arch ola, order_line ol, orders o, item i, customer c, inventory iv
+WHERE ola.old_o_id = o.o_id AND ola.old_inv_id = iv.inv_id AND ola.old_ol_quantity = ol.ol_quantity AND i.item_id = iv.item_id AND c.c_id = o.c_id;
+
+
+CREATE OR REPLACE FORCE VIEW old_order_detail AS
+SELECT old_o_id, old_inv_id, old_ol_quantity, o_date, o_methpmt, item_desc, c_last, c_first
+FROM arch ola, orders o, item i, customer c, inventory iv
+WHERE ola.old_o_id = o.o_id AND ola.old_inv_id = iv.inv_id  AND i.item_id = iv.item_id AND c.c_id = o.c_id;
+
+-- Creating the table
+CREATE TABLE arch(old_o_id NUMBER, old_inv_id NUMBER, old_ol_quantity NUMBER,
+CONSTRAINT arch_old_o_id_fk FOREIGN KEY (old_o_id)
+REFERENCES orders(o_id),
+CONSTRAINT arch_old_inv_id_fk FOREIGN KEY (old_inv_id)
+REFERENCES inventory(inv_id),
+CONSTRAINT arch_old_o_id_old_inv_idpk PRIMARY KEY(old_o_id, old_inv_id));
+
+SELECT * FROM old_order_detail;
+
+
+Nov 8 Project Part 7
+Nov 10 Lecture on Single Row Function + continue with Project Part 7
+    15 Project Part 8
+    17  Lecture
+    22 Project Part 9
+    24 Lecture
+    29 Project Part 10
+Dec 1  Lecture  
+    8  Project Part BONUS
+    13 Simulation Final
+ Dec 15 Solve Simulation , Last minute questions  ROOM 8805
+  
+  20  FINAL EXAM  room 3333   12:00  
+
+
+
+SPOOL OFF;

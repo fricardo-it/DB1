@@ -1,0 +1,109 @@
+SQL> CREATE TABLE region(regid NUMBER, regionname VARCHAR2(50));
+
+Table created.
+
+SQL> ALTER TABLE region
+  2  ADD CONSTRAINT region_regid_PK PRIMARY KEY (regid);
+
+Table altered.
+
+SQL> ALTER TABLE employee
+  2  ADD (hiredate DATE);
+
+Table altered.
+
+SQL> ALTER TABLE job
+  2  ADD (skill_required VARCHAR2(50));
+
+Table altered.
+
+SQL> ALTER TABLE employee
+  2  DROP COLUMN salary;
+
+Table altered.
+
+SQL> ALTER TABLE location
+  2  ADD (regid NUMBER);
+
+Table altered.
+
+SQL> ALTER TABLE location
+  2  ADD CONSTRAINT location_regid_FK FOREIGN KEY (regid)
+  3  REFERENCES region(regid);
+
+Table altered.
+
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+LOCATION                                                                        
+DEPARTMENT                                                                      
+EMPLOYEE                                                                        
+JOB                                                                             
+EMP_JOB                                                                         
+REGION                                                                          
+
+6 rows selected.
+
+SQL> DESC location;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ LOCATIONID                                NOT NULL NUMBER
+ BUILDINGNAME                                       VARCHAR2(50)
+ REGID                                              NUMBER
+
+SQL> DESC department;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ DEPTID                                    NOT NULL NUMBER
+ DEPTNAME                                           VARCHAR2(50)
+ LOCATIONID                                         NUMBER
+
+SQL> DESC employee;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPID                                     NOT NULL NUMBER
+ ENAME                                              VARCHAR2(50)
+ DEPTID                                             NUMBER
+ HIREDATE                                           DATE
+
+SQL> DESC job;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ JOBID                                     NOT NULL NUMBER
+ DESCRIPTION                                        VARCHAR2(50)
+ SKILL_REQUIRED                                     VARCHAR2(50)
+
+SQL> DESC emp_job;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPID                                     NOT NULL NUMBER
+ JOBID                                     NOT NULL NUMBER
+ DATE_JOB_ASSIGNED                                  DATE
+
+SQL> DESC region;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ REGID                                     NOT NULL NUMBER
+ REGIONNAME                                         VARCHAR2(50)
+
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+LOCATION_LOCATIONID_PK         P LOCATION                       ENABLED         
+DEPARTMENT_DEPTID_PK           P DEPARTMENT                     ENABLED         
+EMPLOYEE_EMPID_PK              P EMPLOYEE                       ENABLED         
+JOB_JOBID_PK                   P JOB                            ENABLED         
+EMP_JOB_EMPID_JOBID_PK         P EMP_JOB                        ENABLED         
+DEPARTMENT_LOCATIONID_FK       R DEPARTMENT                     ENABLED         
+EMPLOYEE_DEPTID_FK             R EMPLOYEE                       ENABLED         
+EMP_JOB_EMPID_FK               R EMP_JOB                        ENABLED         
+EMP_JOB_JOBID_FK               R EMP_JOB                        ENABLED         
+REGION_REGID_PK                P REGION                         ENABLED         
+LOCATION_REGID_FK              R LOCATION                       ENABLED         
+
+11 rows selected.
+
+SQL> SPOOL OFF;

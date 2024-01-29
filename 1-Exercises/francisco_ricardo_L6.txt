@@ -1,0 +1,688 @@
+SQL> 
+SQL> --Q2
+SQL> CREATE TABLE consultant
+  2  (c_id NUMBER(6),
+  3  c_last VARCHAR2(20),
+  4  c_first VARCHAR2(20),
+  5  c_mi CHAR(1),
+  6  c_add VARCHAR2(30),
+  7  c_city VARCHAR2(20),
+  8  c_state CHAR(2),
+  9  c_zip VARCHAR2(10),
+ 10  c_phone VARCHAR2(15),
+ 11  c_email VARCHAR2(30),
+ 12  CONSTRAINT consultant_c_id_pk PRIMARY KEY (c_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE skill
+  2  (skill_id NUMBER(3),
+  3  skill_description VARCHAR2(50),
+  4  CONSTRAINT skill_skill_id_pk PRIMARY KEY (skill_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE consultant_skill
+  2  (c_id NUMBER(6),
+  3  skill_id NUMBER(3),
+  4  certification VARCHAR2(8),
+  5  CONSTRAINT consultant_skill_pk PRIMARY KEY (c_id, skill_id),
+  6  CONSTRAINT consultant_skill_c_id_fk FOREIGN KEY (c_id) REFERENCES consultant(c_id),
+  7  CONSTRAINT consultant_skill_skill_id_fk FOREIGN KEY (skill_id) REFERENCES skill(skill_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE client
+  2  (client_id NUMBER(6),
+  3  client_name VARCHAR2(30),
+  4  contact_last VARCHAR2(30),
+  5  contact_first VARCHAR2(30),
+  6  contact_phone VARCHAR2(15),
+  7  CONSTRAINT client_client_id_pk PRIMARY KEY (client_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE project
+  2  (p_id NUMBER(6),
+  3  project_name VARCHAR2(30),
+  4  client_id NUMBER(6),
+  5  mgr_id NUMBER(6),
+  6  parent_p_id NUMBER(6),
+  7  CONSTRAINT project_pid_pk PRIMARY KEY (p_id),
+  8  CONSTRAINT project_client_id_fk FOREIGN KEY (client_id) REFERENCES client(client_id),
+  9  CONSTRAINT project_mgr_id_fk FOREIGN KEY (mgr_id) REFERENCES consultant(c_id));
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE project
+  2  ADD CONSTRAINT project_parent_pid_fk FOREIGN KEY (parent_p_id) REFERENCES project(p_id);
+
+Table altered.
+
+SQL> 
+SQL> CREATE TABLE project_skill
+  2  (p_id NUMBER(6),
+  3  skill_id NUMBER(3),
+  4  CONSTRAINT project_skill_pk PRIMARY KEY (p_id, skill_id),
+  5  CONSTRAINT project_skill_pid_fk FOREIGN KEY (p_id) REFERENCES project(p_id),
+  6  CONSTRAINT project_skill_skill_id_fk FOREIGN KEY (skill_id) REFERENCES skill(skill_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE project_consultant
+  2  (p_id NUMBER(6),
+  3  c_id NUMBER(6),
+  4  roll_on_date DATE,
+  5  roll_off_date DATE,
+  6  elapsed_time VARCHAR2(30),
+  7  CONSTRAINT project_consultant_pk PRIMARY KEY (p_id, c_id),
+  8  CONSTRAINT project_consultant_p_id_fk FOREIGN KEY (p_id) REFERENCES project(p_id),
+  9  CONSTRAINT project_consultant_c_id_fk FOREIGN KEY (c_id) REFERENCES consultant(c_id));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE evaluation
+  2  (e_id NUMBER(8),
+  3  e_date DATE,
+  4  p_id NUMBER(6),
+  5  evaluator_id NUMBER(6),
+  6  evaluatee_id NUMBER(6),
+  7  score NUMBER(3),
+  8  comments VARCHAR2(300),
+  9  CONSTRAINT evaluation_e_id_pk PRIMARY KEY (e_id),
+ 10  CONSTRAINT evaluation_p_id_fk FOREIGN KEY (p_id) REFERENCES project(p_id),
+ 11  CONSTRAINT evaluation_evaluator_id_fk FOREIGN KEY (evaluator_id) REFERENCES consultant(c_id),
+ 12  CONSTRAINT evaluation_evaluatee_id_fk FOREIGN KEY (evaluatee_id) REFERENCES consultant(c_id));
+
+Table created.
+
+SQL> 
+SQL> --insert values into CONSULTANT
+SQL> INSERT INTO consultant VALUES
+  2  (100, 'Myers', 'Mark', 'F', '1383 Alexander Ave.', 'Eau Claire', 'WI', '54703', '7155559652', 'mmyers@swexpert.com');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant VALUES
+  2  (101, 'Hernandez', 'Sheila', 'R', '3227 Brian Street', 'Eau Claire', 'WI', '54702', '7155550282', 'shernandez@earthware.com');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant VALUES
+  2  (102, 'Zhang', 'Brian', NULL, '2227 Calumet Place', 'Altoona', 'WI', '54720', '7155558383', 'zhang@swexpert.com');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant VALUES
+  2  (103, 'Carlson', 'Sarah', 'J', '1334 Water Street', 'Eau Claire', 'WI', '54703', '7155558008', 'carlsons@swexpert.com');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant VALUES
+  2  (104, 'Courtlandt', 'Paul', 'R', '1911 Pine Drive', 'Eau Claire', 'WI', '54701', '7155555225', 'courtlpr@yamail.com');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant VALUES
+  2  (105, 'Park', 'Janet', 'S', '2333 157th Street', 'Chippewa Falls', 'WI', '54712', '7155554944', 'jpark@swexpert.com');
+
+1 row created.
+
+SQL> 
+SQL> --insert values into SKILL
+SQL> INSERT INTO skill VALUES
+  2  (1, 'VB .NET Programming');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (2, 'COBOL Programming');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (3, 'Java Programming');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (4, 'Project Management');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (5, 'Web Application Programming');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (6, 'Oracle Developer Programming');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (7, 'Oracle Database Administration');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (8, 'Windows NT/2000 Network Administration');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO skill VALUES
+  2  (9, 'Windows XP Network Administration');
+
+1 row created.
+
+SQL> 
+SQL> --insert values into CONSULTANT_SKILL
+SQL> INSERT INTO consultant_skill VALUES
+  2  (100, 1, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (100, 3, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (100, 6, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (101, 4, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (101, 5, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (102, 7, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (103, 1, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (103, 6, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (103, 8, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (103, 9, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (104, 8, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (104, 9, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (105, 2, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (105, 3, 'N');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO consultant_skill VALUES
+  2  (105, 4, 'Y');
+
+1 row created.
+
+SQL> 
+SQL> --insert into CLIENT
+SQL> INSERT INTO client VALUES (1, 'Crisco Systems', 'Martin', 'Andrew', '5215557220');
+
+1 row created.
+
+SQL> INSERT INTO client VALUES (2, 'Supreme Data Corporation', 'Martinez', 'Michelle', '5205559821');
+
+1 row created.
+
+SQL> INSERT INTO client VALUES (3, 'Lucid Technologies', 'Brown', 'Jack', '7155552311');
+
+1 row created.
+
+SQL> INSERT INTO client VALUES (4, 'Morningstar Bank', 'Wright', 'Linda', '9215553320');
+
+1 row created.
+
+SQL> INSERT INTO client VALUES (5, 'Maverick Petroleum', 'Miller', 'Tom', '4085559822');
+
+1 row created.
+
+SQL> INSERT INTO client VALUES (6, 'Birchwood Mall', 'Brenner', 'Nicole', '7155550828');
+
+1 row created.
+
+SQL> 
+SQL> --insert into PROJECT
+SQL> INSERT INTO project VALUES
+  2  (1, 'Hardware Support Intranet', 2, 105, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (2, 'Hardware Support Interface', 2, 103, 1);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (3, 'Hardware Support Database', 2, 102, 1);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (4, 'Teller Support System', 4, 105, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (5, 'Internet Advertising', 6, 105, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (6, 'Network Design', 6, 104, 5);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project VALUES
+  2  (7, 'Exploration Database', 5, 102, NULL);
+
+1 row created.
+
+SQL> 
+SQL> --insert into PROJECT_SKILL
+SQL> INSERT INTO project_skill VALUES (1, 8);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (1, 9);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (2, 3);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (3, 6);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (3, 7);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (4, 2);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (4, 7);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (5, 5);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (5, 9);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (6, 9);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (7, 6);
+
+1 row created.
+
+SQL> INSERT INTO project_skill VALUES (7, 7);
+
+1 row created.
+
+SQL> 
+SQL> --insert into PROJECT_CONSULTANT
+SQL> INSERT INTO project_consultant VALUES
+  2  (1, 101, TO_DATE('06/15/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '92 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (1, 104, TO_DATE('01/05/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '126 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (1, 103, TO_DATE('01/05/2006', 'MM/DD/YYYY'), TO_DATE('06/05/2006', 'MM/DD/YYYY'), '5 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (1, 105, TO_DATE('01/05/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '45 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (2, 105, TO_DATE('07/17/2006', 'MM/DD/YYYY'), TO_DATE('09/17/2006', 'MM/DD/YYYY'), '25 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (2, 100, TO_DATE('07/17/2006', 'MM/DD/YYYY'), TO_DATE('09/17/2006', 'MM/DD/YYYY'), '0 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (3, 103, TO_DATE('09/15/2006', 'MM/DD/YYYY'), TO_DATE('03/15/2007', 'MM/DD/YYYY'), '125 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (3, 104, TO_DATE('10/15/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '50 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (4, 105, TO_DATE('06/05/2006', 'MM/DD/YYYY'), TO_DATE('06/05/2007', 'MM/DD/YYYY'), '25 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (4, 104, TO_DATE('06/15/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '53 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (4, 102, TO_DATE('07/15/2006', 'MM/DD/YYYY'), TO_DATE('12/15/2006', 'MM/DD/YYYY'), '30 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (5, 105, TO_DATE('09/19/2006', 'MM/DD/YYYY'), TO_DATE('03/19/2007', 'MM/DD/YYYY'), '15 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (5, 103, TO_DATE('09/19/2006', 'MM/DD/YYYY'), TO_DATE('03/19/2007', 'MM/DD/YYYY'), '15 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (6, 103, TO_DATE('09/19/2006', 'MM/DD/YYYY'), TO_DATE('03/19/2007', 'MM/DD/YYYY'), '5 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (6, 104, TO_DATE('09/19/2006', 'MM/DD/YYYY'), TO_DATE('03/19/2007', 'MM/DD/YYYY'), '10 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (7, 102, TO_DATE('05/20/2006', 'MM/DD/YYYY'), TO_DATE('12/20/2006', 'MM/DD/YYYY'), '55 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO project_consultant VALUES
+  2  (7, 100, TO_DATE('05/25/2006', 'MM/DD/YYYY'), TO_DATE('12/20/2006', 'MM/DD/YYYY'), '100 00:00:00.00');
+
+1 row created.
+
+SQL> 
+SQL> --insert into EVALUATION
+SQL> INSERT INTO evaluation VALUES
+  2  (100, TO_DATE('01/07/2007', 'MM/DD/YYYY'), 1, 105, 101, 90, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO evaluation VALUES
+  2  (101, TO_DATE('01/07/2007', 'MM/DD/YYYY'), 1, 105, 104, 85, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO evaluation VALUES
+  2  (102, TO_DATE('01/08/2007', 'MM/DD/YYYY'), 1, 105, 103, 90, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO evaluation VALUES
+  2  (103, TO_DATE('12/20/2006', 'MM/DD/YYYY'), 1, 103, 105, 100, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO evaluation VALUES
+  2  (104, TO_DATE('12/29/2006', 'MM/DD/YYYY'), 1, 104, 105, 75, NULL);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO evaluation VALUES
+  2  (105, TO_DATE('01/15/2007', 'MM/DD/YYYY'), 1, 101, 105, 90, NULL);
+
+1 row created.
+
+SQL> 
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> 
+SQL> --Q3
+SQL> --a)
+SQL> SELECT cs.c_id, cs.skill_id, s.skill_description,
+  2  FROM skill s, consultant_skill cs
+  3  WHERE s.skill_id = cs.skill_id and cs.c_id = 100;
+FROM skill s, consultant_skill cs
+*
+ERROR at line 2:
+ORA-00936: missing expression 
+
+
+SQL> 
+SQL> --b)
+SQL> SELECT cs.c_id, cs.skill_id,s.skill_description, cs.certification
+  2  FROM skill s, consultant_skill cs
+  3  WHERE s.skill_id = cs.skill_id and cs.c_id = 102 and cs.certification = 'Y';
+
+      C_ID   SKILL_ID SKILL_DESCRIPTION                                         
+---------- ---------- --------------------------------------------------        
+CERTIFIC                                                                        
+--------                                                                        
+       102          7 Oracle Database Administration                            
+Y                                                                               
+                                                                                
+
+SQL> 
+SQL> --c)
+SQL> SELECT pc.c_id, c.c_last, pc.p_id
+  2  FROM consultant c, project_consultant pc
+  3  WHERE c.c_id = pc.c_id and pc.c_id = 1;
+
+no rows selected
+
+SQL> 
+SQL> --d)
+SQL> SELECT s.skill_description, c.c_first
+  2  FROM skill s, consultant c, consultant_skill cs
+  3  WHERE s.skill_id = cs.skill_id and c.c_id = cs.c_id and cs.certification = 'Y';
+
+SKILL_DESCRIPTION                                  C_FIRST                      
+-------------------------------------------------- --------------------         
+VB .NET Programming                                Sarah                        
+VB .NET Programming                                Mark                         
+Project Management                                 Janet                        
+Oracle Developer Programming                       Sarah                        
+Oracle Developer Programming                       Mark                         
+Oracle Database Administration                     Brian                        
+Windows NT/2000 Network Administration             Sarah                        
+Windows XP Network Administration                  Paul                         
+Windows XP Network Administration                  Sarah                        
+
+9 rows selected.
+
+SQL> 
+SQL> --e)
+SQL> SELECT p.project_name
+  2  FROM project p, consultant c, project_consultant pc
+  3  WHERE p.p_id = pc.p_id and pc.c_id = c.c_id and c.c_first = 'Mark' and c.c_last = 'Myer';
+
+no rows selected
+
+SQL> --correct last name is MayerS
+SQL> SELECT p.project_name
+  2  FROM project p, consultant c, project_consultant pc
+  3  WHERE p.p_id = pc.p_id and pc.c_id = c.c_id and c.c_first = 'Mark' and c.c_last = 'Myers';
+
+PROJECT_NAME                                                                    
+------------------------------                                                  
+Hardware Support Interface                                                      
+Exploration Database                                                            
+
+SQL> 
+SQL> --f)
+SQL> SELECT p.project_name, c.c_first, c.c_last
+  2  FROM project p, consultant c, project_consultant pc
+  3  WHERE p.p_id = pc.p_id and p.mgr_id = c.c_id;
+
+PROJECT_NAME                   C_FIRST              C_LAST                      
+------------------------------ -------------------- --------------------        
+Hardware Support Intranet      Janet                Park                        
+Hardware Support Intranet      Janet                Park                        
+Hardware Support Intranet      Janet                Park                        
+Hardware Support Intranet      Janet                Park                        
+Hardware Support Interface     Sarah                Carlson                     
+Hardware Support Interface     Sarah                Carlson                     
+Hardware Support Database      Brian                Zhang                       
+Hardware Support Database      Brian                Zhang                       
+Teller Support System          Janet                Park                        
+Teller Support System          Janet                Park                        
+Teller Support System          Janet                Park                        
+
+PROJECT_NAME                   C_FIRST              C_LAST                      
+------------------------------ -------------------- --------------------        
+Internet Advertising           Janet                Park                        
+Internet Advertising           Janet                Park                        
+Network Design                 Paul                 Courtlandt                  
+Network Design                 Paul                 Courtlandt                  
+Exploration Database           Brian                Zhang                       
+Exploration Database           Brian                Zhang                       
+
+17 rows selected.
+
+SQL> 
+SQL> --g)
+SQL> SELECT p.project_name, pp.project_name "PROJECT_PARENT"
+  2  FROM project p, project pp
+  3  WHERE p.p_id = pp.parent_p_id;
+
+PROJECT_NAME                   PROJECT_PARENT                                   
+------------------------------ ------------------------------                   
+Hardware Support Intranet      Hardware Support Interface                       
+Hardware Support Intranet      Hardware Support Database                        
+Internet Advertising           Network Design                                   
+
+SQL> 
+SQL> --h)
+SQL> SELECT p.project_name, pp.project_name "PROJECT_PARENT"
+  2  FROM project p, project pp
+  3  WHERE p.p_id = pp.parent_p_id(+);
+
+PROJECT_NAME                   PROJECT_PARENT                                   
+------------------------------ ------------------------------                   
+Hardware Support Intranet      Hardware Support Interface                       
+Hardware Support Intranet      Hardware Support Database                        
+Internet Advertising           Network Design                                   
+Hardware Support Database                                                       
+Hardware Support Interface                                                      
+Network Design                                                                  
+Exploration Database                                                            
+Teller Support System                                                           
+
+8 rows selected.
+
+SQL> 
+SQL> spool off;

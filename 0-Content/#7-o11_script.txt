@@ -1,0 +1,198 @@
+Menu du jour
+  -- DDL = Data Definition Language (CREATE TABLE ...)
+  -- DML = Data Manipulation Language
+       --  INSERT
+       --  UPDATE
+       --  DELETE
+  -- DCL = Data Control Language
+       -- Rollback
+       -- COMMIT
+  -- SEQUENCES -- Used to Auto generate PKs, FKs Value.
+
+INSERT:
+  Syntax:   
+ INSERT INTO name_of_table (name_of_column1, name_of_column2, ...)
+ VALUES (value1, value2, ... );
+
+
+Example 1:  Using schemas scott, create a command to insert department
+50 named MARKETING located in montreal
+
+  sol:
+    INSERT INTO dept (deptno, loc, dname)
+    VALUES (50,'MONTREAL','MARKETING') ;
+
+Example 2:  Using schemas scott, create a command to insert department
+60 named INFO located in TORONTO
+
+  sol:
+-- we don't have to mention the column name if we have all the values.
+    INSERT INTO dept 
+    VALUES (60,'INFO','TORONTO') ;
+-------------------- UPDATE ----------------
+  Syntax:
+     UPDATE name_of_table
+     SET   name_of_column1 = value1 , name_of_column2 = value2, ...
+    [ WHERE condition ] ;
+ All rows where the condition is evaluated to TRUE will be updated.
+If there are no where condition present, all rows of the table will
+be updated.
+
+Example 3:  Modify the location of department number 10 to 'MONTREAL'
+and the name to CLEANING
+
+    UPDATE dept
+    SET  dname = 'CLEANING', loc = 'MONTREAL' 
+    WHERE  deptno = 60;
+
+-------------------------- DELETE -------------------
+  Syntax:
+     DELETE FROM name_of_table
+   [ WHERE condition ]  ;
+All rows where the condition is evaluated to TRUE will be removed
+from the table.  If there is no WHERE condition, all rows of the 
+table will be removed.
+
+   Example 4:  Remove department number 50 from the table dept.
+DELETE FROM dept
+WHERE deptno  = 50;
+---------------------------------- ROLLBACK ---------------
+  Syntax:
+          ROLLBACK ;
+All DML will be cancelled up to the last COMMIT
+
+  Example 5:  Cancel all the command of ex1 to ex4
+ROLLBACK;
+
+-------------------- COMMIT ------------------------
+  -- Explicit commit :   COMMIT ;
+Example 6:  Re-do Example1 then make it permanently saved. 
+               INSERT INTO dept (deptno, loc, dname)
+               VALUES (50,'MONTREAL','MARKETING') ;
+               COMMIT;
+Example 7:  Re-do Example2 then cancel it 
+                INSERT INTO dept 
+                VALUES (60,'INFO','TORONTO') ;
+                ROLLBACK;
+  -- Implicit commit :  Any DDL .
+
+Example 8:  Re-do Example2 then create the table of the design below:
+            TEST (id, name) to show that the
+            DML is implicitly COMMIT.
+               INSERT INTO dept
+               VALUES (60,'INFO','TORONTO') ;
+  CREATE TABLE test(id NUMBER, name VARCHAR2(20));
+                ROLLBACK;
+
+------------------------- DML , DCL ----- SAVEPOINT ----
+We can set a Savepoint in order to rollback to the prefered savepoint.
+
+  Example 9:  Remove department 50 and 60 then re-do example 1 to
+example 4 with a savepoint between each example.
+  Rollback to each savepoint to see the content of the table dept.
+
+   DELETE FROM dept
+   WHERE deptno IN(50,60);
+
+   INSERT INTO dept (deptno, loc, dname)
+    VALUES (50,'MONTREAL','MARKETING') ;
+  SAVEPOINT A ;
+-- ex2
+   INSERT INTO dept 
+    VALUES (60,'INFO','TORONTO') ;
+
+  SAVEPOINT B ;
+
+-- ex3
+    UPDATE dept
+    SET  dname = 'CLEANING', loc = 'MONTREAL' 
+    WHERE  deptno = 60;
+  SAVEPOINT C;
+
+-- ex4
+  DELETE FROM dept
+WHERE deptno  = 50;
+
+   -- cancle ex4
+  ROLLBACK TO C ;
+
+ -- cancle ex3
+  ROLLBACK TO B ;
+ -- cancle ex2 and ex1
+ROLLBACK TO A;
+---------------------------------  SEQUENCES --------------------
+  Syntax:
+          CREATE SEQUENCE name_of_sequence
+        [ START WITH
+          INCREMENT BY
+          MAXVALUE / MINVALUE
+          CYCLE / NOCYCLE
+          CACHE SIZE / NOCACHE
+          ...     ]                  ;
+Default value:   start with number 1, increment by 1, nomax, nomin
+cache size is 20.
+
+Ex10:  Create a sequence named oct11_ex10_seq with all defaut value
+
+     CREATE SEQUENCE oct11_ex10_seq ;
+
+Ex11:  Create a sequence named oct11_ex11_seq  start with number 100
+       increment by 5
+     CREATE SEQUENCE oct11_ex11_seq START WITH 100 INCREMENT BY 5;
+
+Ex12:  Create a sequence named oct11_ex12_seq  start with number 100
+       increment by 5 and zero cache value
+     CREATE SEQUENCE oct11_ex12_seq START WITH 100 INCREMENT BY 5
+     NOCACHE;
+-- Using sequence in SQL:
+     to obain a new number use .NEXTVAL as follow:
+  Syntax:
+       SELECT name_of_sequence.NEXTVAL FROM dual;
+SELECT oct11_ex10_seq.NEXTVAL FROM dual;
+SELECT oct11_ex11_seq.NEXTVAL FROM dual;
+SELECT oct11_ex12_seq.NEXTVAL FROM dual;
+
+     to obain the current number use .CURRVAL as follow:
+  Syntax:
+       SELECT name_of_sequence.CURRVAL FROM dual;
+SELECT oct11_ex10_seq.CURRVAL FROM dual;
+
+   -- user_tables
+   -- user_constraints
+   -- user_sequences
+To display the info of a sequence do:
+  SELECT sequence_name, increment_by, cache_size, last_number
+  FROM   user_sequences;
+
+
+Example 13: Create a sequence named dept_seq that start with number
+  62 increment by 2 , no cache. Then create another sequence named
+  emp_seq that start with number 8000 increment by 1 nocache.
+
+   CREATE SEQUENCE dept_seq START WITH 62 INCREMENT BY 2 NOCACHE;
+ 
+   CREATE SEQUENCE emp_seq START WITH 8000 NOCACHE;
+
+Example 14: Using the sequences created in example 13 Insert 2 
+departments with 2 new employees working in each department just
+inserted.
+
+    SELECT * FROM dept;
+    SELECT empno, ename, job, deptno FROM emp;
+
+    -- insert department
+   INSERT INTO dept
+   VALUES(dept_seq.NEXTVAL,'EATING','MONTREAL');
+
+   INSERT INTO emp(empno, ename, job, sal, deptno)
+   VALUES(emp_seq.NEXTVAL,'Miwa','Eater',5000,dept_seq.CURRVAL);
+   INSERT INTO emp(empno, ename, job, sal, deptno)
+   VALUES(emp_seq.NEXTVAL,'Bonnie','Eater',5001,dept_seq.CURRVAL);
+
+   INSERT INTO dept
+   VALUES(dept_seq.NEXTVAL,'CLEANING','MONTREAL');
+
+   INSERT INTO emp(empno, ename, job, sal, deptno)
+   VALUES(emp_seq.NEXTVAL,'Miwa','Cleaner',5000,dept_seq.CURRVAL);
+   INSERT INTO emp(empno, ename, job, sal, deptno)
+   VALUES(emp_seq.NEXTVAL,'Bonnie','Cleaner',5001,dept_seq.CURRVAL);

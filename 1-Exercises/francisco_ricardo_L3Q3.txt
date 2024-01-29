@@ -1,0 +1,54 @@
+SQL> CREATE TABLE faculty(fid NUMBER, fname VARCHAR2(50), salary varchar2(10));
+
+Table created.
+
+SQL> CREATE TABLE student(sid NUMBER, sname varchar2(50));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE course(cno NUMBER, cname varchar2(50));
+
+Table created.
+
+SQL> CREATE TABLE enroll(secid NUMBER, sid NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE course_section(secid NUMBER, cno NUMBER, fid NUMBER);
+
+Table created.
+
+SQL> DESC faculty;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ FID                                                NUMBER
+ FNAME                                              VARCHAR2(50)
+ SALARY                                             VARCHAR2(10)
+
+SQL> DESC student;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SID                                                NUMBER
+ SNAME                                              VARCHAR2(50)
+
+SQL> DESC course;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CNO                                                NUMBER
+ CNAME                                              VARCHAR2(50)
+
+SQL> DESC enroll;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SECID                                              NUMBER
+ SID                                                NUMBER
+
+SQL> DESC course_section;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SECID                                              NUMBER
+ CNO                                                NUMBER
+ FID                                                NUMBER
+
+SQL> SPOOL OFF;

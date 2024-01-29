@@ -1,0 +1,219 @@
+SQL> 
+SQL> --create tables
+SQL> CREATE TABLE customer(custid NUMBER, custname VARCHAR2(50));
+
+Table created.
+
+SQL> CREATE TABLE product(productid NUMBER, description VARCHAR2(50), price NUMBER(10,2));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, payment VARCHAR2(10), custd NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE orders_line(productid NUMBER, oid NUMBER, quantity NUMBER);
+
+Table created.
+
+SQL> 
+SQL> --create PKs
+SQL> ALTER TABLE customer
+  2  ADD CONSTRAINT customer_custid_PK PRIMARY KEY (custid);
+
+Table altered.
+
+SQL> ALTER TABLE product
+  2  ADD CONSTRAINT product_productid_PK PRIMARY KEY (productid);
+
+Table altered.
+
+SQL> ALTER TABLE orders
+  2  ADD CONSTRAINT orders_oid_PK PRIMARY KEY (oid);
+
+Table altered.
+
+SQL> ALTER TABLE orders_line
+  2  ADD CONSTRAINT orders_line_productid_oid_PK PRIMARY KEY (productid,oid);
+
+Table altered.
+
+SQL> 
+SQL> --create FKs
+SQL> ALTER TABLE orders
+  2  ADD CONSTRAINT orders_custd_FK FOREIGN KEY (custd)
+  3  REFERENCES customer(custid);
+
+Table altered.
+
+SQL> ALTER TABLE orders_line
+  2  ADD CONSTRAINT orders_line_productid_FK FOREIGN KEY (productid)
+  3  REFERENCES product(productid);
+
+Table altered.
+
+SQL> ALTER TABLE orders_line
+  2  ADD CONSTRAINT orders_oid_FK FOREIGN KEY (oid)
+  3  REFERENCES orders(oid);
+
+Table altered.
+
+SQL> 
+SQL> --add/modify constraints NN
+SQL> ALTER TABLE customer
+  2  MODIFY(custname CONSTRAINT customer_custname_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE product
+  2  MODIFY(description CONSTRAINT product_description_NN NOT NULL);
+
+Table altered.
+
+SQL> 
+SQL> --add column
+SQL> ALTER TABLE customer
+  2  ADD (gender CHAR(1));
+
+Table altered.
+
+SQL> 
+SQL> --create CK
+SQL> ALTER TABLE customer
+  2  ADD CONSTRAINT customer_gender_CK CHECK (gender in ('M','m','F','f'));
+
+Table altered.
+
+SQL> ALTER TABLE product
+  2  ADD CONSTRAINT product_price_CK CHECK (price >= 0);
+
+Table altered.
+
+SQL> 
+SQL> --create UK
+SQL> ALTER TABLE orders
+  2  ADD CONSTRAINT orders_payment_UK UNIQUE (payment);
+
+Table altered.
+
+SQL> 
+SQL> --list tables
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+PRODUCT                                                                         
+CUSTOMER                                                                        
+ORDERS                                                                          
+ORDERS_LINE                                                                     
+
+SQL> 
+SQL> --desc tables
+SQL> DESC customer;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CUSTID                                    NOT NULL NUMBER
+ CUSTNAME                                  NOT NULL VARCHAR2(50)
+ GENDER                                             CHAR(1)
+
+SQL> DESC product;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ DESCRIPTION                               NOT NULL VARCHAR2(50)
+ PRICE                                              NUMBER(10,2)
+
+SQL> DESC orders;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OID                                       NOT NULL NUMBER
+ ODATE                                              DATE
+ PAYMENT                                            VARCHAR2(10)
+ CUSTD                                              NUMBER
+
+SQL> DESC orders_line;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ OID                                       NOT NULL NUMBER
+ QUANTITY                                           NUMBER
+
+SQL> 
+SQL> -- list constraints
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+CUSTOMER_CUSTNAME_NN           C CUSTOMER                       ENABLED         
+PRODUCT_DESCRIPTION_NN         C PRODUCT                        ENABLED         
+CUSTOMER_GENDER_CK             C CUSTOMER                       ENABLED         
+PRODUCT_PRICE_CK               C PRODUCT                        ENABLED         
+ORDERS_OID_FK                  R ORDERS_LINE                    ENABLED         
+ORDERS_LINE_PRODUCTID_FK       R ORDERS_LINE                    ENABLED         
+ORDERS_CUSTD_FK                R ORDERS                         ENABLED         
+CUSTOMER_CUSTID_PK             P CUSTOMER                       ENABLED         
+PRODUCT_PRODUCTID_PK           P PRODUCT                        ENABLED         
+ORDERS_OID_PK                  P ORDERS                         ENABLED         
+ORDERS_LINE_PRODUCTID_OID_PK   P ORDERS_LINE                    ENABLED         
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+ORDERS_PAYMENT_UK              U ORDERS                         ENABLED         
+
+12 rows selected.
+
+SQL> 
+SQL> -- insert values into the tables
+SQL> INSERT INTO customer(custid, custname)
+  2  VALUES (1,'Francisco Ricardo');
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM customer;
+
+    CUSTID CUSTNAME                                           G                 
+---------- -------------------------------------------------- -                 
+         1 Francisco Ricardo                                                    
+
+SQL> 
+SQL> INSERT INTO product(productid, description, price)
+  2  VALUES (1,'PRODUCT-1',1.99);
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM product;
+
+ PRODUCTID DESCRIPTION                                             PRICE        
+---------- -------------------------------------------------- ----------        
+         1 PRODUCT-1                                                1.99        
+
+SQL> 
+SQL> INSERT INTO orders(oid, odate, payment, custd)
+  2  VALUES (1,sysdate,'CASH',1);
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM orders;
+
+       OID ODATE     PAYMENT         CUSTD                                      
+---------- --------- ---------- ----------                                      
+         1 25-OCT-22 CASH                1                                      
+
+SQL> 
+SQL> INSERT INTO orders_line(productid, oid, quantity)
+  2  VALUES (1,1,10);
+
+1 row created.
+
+SQL> 
+SQL> SELECT * FROM orders_line;
+
+ PRODUCTID        OID   QUANTITY                                                
+---------- ---------- ----------                                                
+         1          1         10                                                
+
+SQL> 
+SQL> SPOOL OFF;

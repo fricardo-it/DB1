@@ -1,0 +1,239 @@
+SQL> 
+SQL> CREATE TABLE course(courseid NUMBER, coursename varchar2(40) CONSTRAINT course_coursename_NN NOT NULL, credits number,
+  2  CONSTRAINT course_courseid_PK PRIMARY KEY (courseid));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE term(termid NUMBER, description VARCHAR2(50) CONSTRAINT term_description_NN NOT NULL, status VARCHAR2(10) CONSTRAINT term_status_CK CHECK (status in ('OPEN','CLOSED')),
+  2  CONSTRAINT term_termid_PK PRIMARY KEY (termid));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE location(locid NUMBER, building VARCHAR2(20) CONSTRAINT location_building_NN NOT NULL, room NUMBER CONSTRAINT location_room_UK UNIQUE,
+  2  CONSTRAINT location_locid_PK PRIMARY KEY (locid));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE student(studid NUMBER, sname varchar2(50) CONSTRAINT student_sname_NN NOT NULL, birthdate DATE,
+  2  CONSTRAINT student_studid_PK PRIMARY KEY (studid));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE course_section(csectionid NUMBER, maxcapacity NUMBER CONSTRAINT course_section_maxcapacity_NN NOT NULL, courseid NUMBER, termid number, locid number,
+  2  CONSTRAINT course_section_csectionid_PK PRIMARY KEY (csectionid),
+  3  CONSTRAINT course_section_courseid_FK FOREIGN KEY (courseid)
+  4  REFERENCES course(courseid),
+  5  CONSTRAINT course_section_termid_FK FOREIGN KEY (termid)
+  6  REFERENCES term(termid),
+  7  CONSTRAINT course_section_locid_FK FOREIGN KEY (locid)
+  8  REFERENCES location(locid));
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE enrollment(studid NUMBER, csectionid NUMBER, grade NUMBER(3,2),
+  2  CONSTRAINT enroll_studid_csectionid_PK PRIMARY KEY (studid,csectionid),
+  3  CONSTRAINT enrollment_studid_FK FOREIGN KEY (studid)
+  4  REFERENCES student(studid),
+  5  CONSTRAINT enrollment_csectionid_FK FOREIGN KEY (csectionid)
+  6  REFERENCES course_section(csectionid));
+
+Table created.
+
+SQL> 
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+COURSE                                                                          
+TERM                                                                            
+LOCATION                                                                        
+STUDENT                                                                         
+COURSE_SECTION                                                                  
+ENROLLMENT                                                                      
+
+6 rows selected.
+
+SQL> 
+SQL> DESC course;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ COURSEID                                  NOT NULL NUMBER
+ COURSENAME                                NOT NULL VARCHAR2(40)
+ CREDITS                                            NUMBER
+
+SQL> DESC term;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ TERMID                                    NOT NULL NUMBER
+ DESCRIPTION                               NOT NULL VARCHAR2(50)
+ STATUS                                             VARCHAR2(10)
+
+SQL> DESC location;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ LOCID                                     NOT NULL NUMBER
+ BUILDING                                  NOT NULL VARCHAR2(20)
+ ROOM                                               NUMBER
+
+SQL> DESC student;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ STUDID                                    NOT NULL NUMBER
+ SNAME                                     NOT NULL VARCHAR2(50)
+ BIRTHDATE                                          DATE
+
+SQL> DESC course_section;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CSECTIONID                                NOT NULL NUMBER
+ MAXCAPACITY                               NOT NULL NUMBER
+ COURSEID                                           NUMBER
+ TERMID                                             NUMBER
+ LOCID                                              NUMBER
+
+SQL> DESC enrollment;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ STUDID                                    NOT NULL NUMBER
+ CSECTIONID                                NOT NULL NUMBER
+ GRADE                                              NUMBER(3,2)
+
+SQL> 
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+COURSE_COURSENAME_NN           C COURSE                         ENABLED         
+COURSE_COURSEID_PK             P COURSE                         ENABLED         
+TERM_DESCRIPTION_NN            C TERM                           ENABLED         
+TERM_STATUS_CK                 C TERM                           ENABLED         
+TERM_TERMID_PK                 P TERM                           ENABLED         
+LOCATION_BUILDING_NN           C LOCATION                       ENABLED         
+LOCATION_LOCID_PK              P LOCATION                       ENABLED         
+LOCATION_ROOM_UK               U LOCATION                       ENABLED         
+STUDENT_SNAME_NN               C STUDENT                        ENABLED         
+STUDENT_STUDID_PK              P STUDENT                        ENABLED         
+COURSE_SECTION_MAXCAPACITY_NN  C COURSE_SECTION                 ENABLED         
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+COURSE_SECTION_CSECTIONID_PK   P COURSE_SECTION                 ENABLED         
+COURSE_SECTION_COURSEID_FK     R COURSE_SECTION                 ENABLED         
+COURSE_SECTION_TERMID_FK       R COURSE_SECTION                 ENABLED         
+COURSE_SECTION_LOCID_FK        R COURSE_SECTION                 ENABLED         
+ENROLL_STUDID_CSECTIONID_PK    P ENROLLMENT                     ENABLED         
+ENROLLMENT_STUDID_FK           R ENROLLMENT                     ENABLED         
+ENROLLMENT_CSECTIONID_FK       R ENROLLMENT                     ENABLED         
+
+18 rows selected.
+
+SQL> INSERT INTO course
+  2  VALUES (1,'Database',3);
+
+1 row created.
+
+SQL> SELECT * FROM course;
+
+  COURSEID COURSENAME                                  CREDITS                  
+---------- ---------------------------------------- ----------                  
+         1 Database                                          3                  
+
+SQL> INSERT INTO course_section (csectionid, maxcapacity, courseid, termid, locid)
+  2  VALUES (14,10,1,1,1);
+INSERT INTO course_section (csectionid, maxcapacity, courseid, termid, locid)
+*
+ERROR at line 1:
+ORA-02291: integrity constraint 
+(FRANCISCO_RICARDO_L5Q3.COURSE_SECTION_LOCID_FK) violated - parent key not 
+found 
+
+
+SQL> -- CANNOT INSERT 'ITEM B' BECAUSE VIOLETED THE REFERENCIAL INTEGRITY WITH FK'S WHICH DO NOT EXIST (LOCID AND TERMID) IN REFERENCIAL TABLES. IT IS NECESSARY TO INSERT INTO THESE TABLES FIRST.
+SQL> -- SOLUTION:
+SQL> INSERT INTO term(termid, description, status)
+  2  VALUES (1,'WINTER TERM','OPEN');
+
+1 row created.
+
+SQL> INSERT INTO location(locid, building, room)
+  2  VALUES (1,'MAIN','202');
+
+1 row created.
+
+SQL> SELECT * FROM TERM;
+
+    TERMID DESCRIPTION                                        STATUS            
+---------- -------------------------------------------------- ----------        
+         1 WINTER TERM                                        OPEN              
+
+SQL> SELECT * FROM LOCATION;
+
+     LOCID BUILDING                   ROOM                                      
+---------- -------------------- ----------                                      
+         1 MAIN                        202                                      
+
+SQL> INSERT INTO course_section (csectionid, maxcapacity, courseid, termid, locid)
+  2  VALUES (14,10,1,1,1);
+
+1 row created.
+
+SQL> INSERT INTO course_section (csectionid, maxcapacity, courseid, termid, locid)
+  2  VALUES (15,10,1,1,1);
+
+1 row created.
+
+SQL> SELECT * FROM course_section;
+
+CSECTIONID MAXCAPACITY   COURSEID     TERMID      LOCID                         
+---------- ----------- ---------- ---------- ----------                         
+        14          10          1          1          1                         
+        15          10          1          1          1                         
+
+
+SQL> INSERT INTO student(studid, sname, birthdate)
+  2  VALUES (1,'Francisco Ricardo', to_date('9-9-1982','dd-mm-yyyy'));
+
+1 row created.
+
+SQL> SELECT * FROM student;
+
+    STUDID SNAME                                              BIRTHDATE         
+---------- -------------------------------------------------- ---------         
+         1 Francisco Ricardo                                  09-SEP-82         
+
+SQL> INSERT INTO enrollment(studid, csectionid)
+  2  VALUES (1, 14);
+
+1 row created.
+
+SQL> INSERT INTO enrollment(studid, csectionid)
+  2  VALUES (1, 15);
+
+1 row created.
+
+SQL> SELECT * FROM enrollment;
+
+    STUDID CSECTIONID      GRADE                                                
+---------- ---------- ----------                                                
+         1         14                                                           
+         1         15                                                           
+
+SQL> UPDATE course_section
+  2  SET maxcapacity = 25
+  3  WHERE csectionid = 15;
+
+1 row updated.
+
+SQL> SELECT * FROM course_section;
+
+CSECTIONID MAXCAPACITY   COURSEID     TERMID      LOCID                         
+---------- ----------- ---------- ---------- ----------                         
+        14          10          1          1          1                         
+        15          25          1          1          1                         
+
+SQL> SPOOL OFF;

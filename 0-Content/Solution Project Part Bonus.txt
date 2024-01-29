@@ -1,0 +1,289 @@
+BONUS PROJECT
+Q1/
+  -- shipped inv_id
+SELECT DISTINCT inv.item_id, item_desc
+FROM   item i,inventory inv, shipment_line sl, shipment s
+WHERE  i.item_id = inv.item_id
+AND    inv.inv_id = sl.inv_id
+AND    sl.ship_id = s.ship_id
+AND    ship_date_expected IS NOT NULL;    1,2,3,4
+
+
+SELECT inv_id
+FROM   order_line
+WHERE  o_id IN (SELECT o_id
+               FROM   orders
+               WHERE  os_id IN (SELECT os_id
+                               FROM order_source
+                               WHERE os_desc = 'Web Site') ); 8,13,19
+
+verify from bottom up
+  -- find the os_id of Web site
+  SELECT os_id
+   FROM order_source
+  WHERE os_desc = 'Web Site';            6
+
+  -- find the o_id with os_id = 6
+  SELECT o_id
+  FROM   orders
+  WHERE  os_id = 6;         2,5
+
+== SELECT o_id
+   FROM   orders
+    WHERE  os_id = (SELECT os_id
+                    FROM order_source
+                      WHERE os_desc = 'Web Site');
+
+-- find the inv_id of order number 2,5
+ 
+   SELECT inv_id
+   FROM   order_line
+   WHERE  o_id IN (2,5)   8,13,19
+== SELECT inv_id
+   FROM   order_line
+   WHERE  o_id IN (SELECT o_id
+                   FROM   orders
+                   WHERE  os_id = (SELECT os_id
+                                  FROM order_source
+                              WHERE os_desc = 'Web Site'));
+
+join with table item for item description
+
+SELECT   i.item_id, item_desc
+   FROM   item i, inventory inv, order_line ol
+   WHERE  i.item_id = inv.item_id
+   AND    inv.inv_id = ol.inv_id
+   AND  o_id IN (SELECT o_id
+                   FROM   orders
+                   WHERE  os_id = (SELECT os_id
+                                  FROM order_source
+                              WHERE os_desc = 'Web Site'));
+
+Use UNION NOW
+
+SELECT DISTINCT inv.item_id, item_desc
+FROM   item i,inventory inv, shipment_line sl, shipment s
+WHERE  i.item_id = inv.item_id
+AND    inv.inv_id = sl.inv_id
+AND    sl.ship_id = s.ship_id
+AND    ship_date_expected IS NOT NULL
+UNION
+SELECT   i.item_id, item_desc
+   FROM   item i, inventory inv, order_line ol
+   WHERE  i.item_id = inv.item_id
+   AND    inv.inv_id = ol.inv_id
+   AND  o_id IN (SELECT o_id
+                   FROM   orders
+                   WHERE  os_id = (SELECT os_id
+                                  FROM order_source
+                              WHERE os_desc = 'Web Site'));
+
+Q2
+   -- find the course taken by Miller Sarah
+   SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah');    1,4,6,9
+
+  -- find the course taken by Umato Brian
+   SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian');        1,5,6,9
+
+
+
+use INTERSECT noW
+
+SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah')
+INTERSECT
+   SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian');
+
+q3/ -- use MINUS for diff between Sahah and Brian
+
+SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah')
+MINUS
+   SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian');
+
+-- use MINUS for diff between Brian and Sarah
+SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian')
+MINUS
+SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah');
+
+Use UNION to display the different between the 2 STUDENTS
+
+
+(SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah')
+MINUS
+   SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian'))
+UNION
+(SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Umato' AND s_first = 'Brian')
+MINUS
+SELECT e.c_sec_id, course_name
+   FROM   enrollment e, course c, course_section cs
+   WHERE  c.course_id = cs.course_Id
+   AND    cs.c_sec_id = e.c_sec_Id
+   AND s_id =(SELECT s_id
+                 FROM   student
+                 WHERE  s_last = 'Miller' AND s_first = 'Sarah'));
+
+Q4/  SELECT s_last, s_first, 'STUDENT'
+     FROM   student
+     UNION
+     SELECT f_last, f_first, 'FACULTY'
+     FROM   faculty;
+
+Q5/ -- find skill of Carlson Sarah
+    SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Carlson' AND c_first = 'Sarah')) ;  1,6,8,9
+
+  -- find skill of Mark Myers
+    SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Myers' AND c_first = 'Mark')) ;           1,3,6
+
+-- find diff between Mark and Sarah
+
+SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Carlson' AND c_first = 'Sarah'))
+MINUS
+    SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Myers' AND c_first = 'Mark')) ;        8,9          
+
+-- find diff between Sarah and Mark
+
+SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Myers' AND c_first = 'Mark'))
+MINUS
+SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Carlson' AND c_first = 'Sarah'))      3
+
+
+Use UNION now
+
+(SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Carlson' AND c_first = 'Sarah'))
+MINUS
+    SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Myers' AND c_first = 'Mark')))              
+UNION
+(SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Myers' AND c_first = 'Mark'))
+MINUS
+SELECT skill_id, skill_description
+    FROM   skill
+    WHERE  skill_id IN (SELECT skill_id
+                        FROM   consultant_skill
+                        WHERE  c_id = (SELECT c_id
+                                       FROM   consultant
+      WHERE c_last = 'Carlson' AND c_first = 'Sarah')) );  3,8,9
+
+
+
+
+   student 1      A   B
+   student 2      B   C   

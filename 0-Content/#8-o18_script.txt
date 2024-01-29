@@ -1,0 +1,173 @@
+-- The SELECT Statement
+      -- FROM one table
+      -- FROM multiple table:
+      -- N-1 law to join tables togheter: -- EQUI JOIN
+                                          -- SELF JOIN
+                                          -- OUTER JOIN
+
+Select from one table
+    Syntax:   
+                 SELECT name_of_column1, name_of_column2, ...
+                 FROM   name_of_table
+               [ WHERE condition ]  ;
+If there is a WHERE condition, all row with the condition evaluated
+to TRUE will be returned, if not all rows of the table will be
+returned.
+To SELECT all column use character ' * '
+
+Example 1:  Using schemas scott, write a query to display all
+departments.
+
+connect scott/tiger
+SELECT table_name FROM user_tables;
+DESC dept
+SELECT deptno, dname
+FROM   dept;
+SELECT deptno, dname, loc
+FROM   dept;
+SELECT *
+FROM   dept;
+Example 2:  Using schemas scott, write a query to display empno,
+ename, job, sal of all
+employees who earn more than 1500 a month. (hint: use comparison
+operator = EQUAL, > greater than,  < less than
+<> NOT EQUAL, >= greater or equal,  <= less than or equal)
+
+SELECT empno, ename, job, sal
+FROM   EMP
+WHERE  sal > 1500;
+
+Example 3:  Using schemas scott, write a query to display empno,
+ename, job, sal of all
+employees who earn 1600 or more and less than 2975 a month. (hint: use comparison
+operator = EQUAL, > greater than,  < less than
+<> NOT EQUAL, >= greater or equal,  <= less than or equal, and
+logical operator AND)
+
+SELECT empno, ename, job, sal
+FROM   EMP
+WHERE  sal >= 1600 AND sal <= 2975;
+
+== EQUIVALENT TO
+SELECT empno, ename, job, sal
+FROM   EMP
+WHERE  sal BETWEEN 1600 AND 2975;
+
+Example 4:  Using schemas scott, write a query to display empno,
+ename, job, sal of all
+employees who earn 1600 or more OR who are a CLERK  (hint: use comparison
+operator = EQUAL, > greater than,  < less than
+<> NOT EQUAL, >= greater or equal,  <= less than or equal, and
+logical operator OR)
+
+SELECT empno, ename, job, sal
+FROM   EMP
+WHERE  sal >= 1600 OR job = 'CLERK';
+------------------------------------------------ 
+  The LIKE operator 
+We have 2 wildcard :  
+  % is for any number of characters different
+  _ is for ONE character different
+
+
+Example 5:  Using schemas scott, write a query to display empno,
+ename, job, sal of all employees whose name started with character
+'M'
+SELECT empno, ename, job, sal
+FROM   emp
+WHERE ename LIKE 'M%';
+
+Example 5:  Using schemas scott, write a query to display empno,
+ename, job, sal of all employees whose name contain character
+'A'
+SELECT empno, ename, job, sal
+FROM   emp
+WHERE ename LIKE '%A%';
+----------------------  IS NULL / IS NOT NULL operator
+
+Example 6:  Using schemas scott, write a query to display empno,
+ename, job, sal, and commission of all employees whose earn a commission
+
+SELECT empno, ename, job, sal, comm
+FROM   emp
+WHERE  comm IS NOT NULL;
+---------------
+  SELECT from multiples tables
+
+     Syntax:   
+      SELECT table1.column1, table1.column2, table2.column1, ...
+      FROM   table1 , table2, ...
+      WHERE  join condition (s)
+    [ AND   search condition ] ;
+
+N - 1 law:  For a query from N table, we MUST have N -1 join
+condition.  If the join conditions is not present, CARTESIAN
+PRODUCT will be occured.
+
+Example 7:  Using schemas scott, write a query to display empno,
+ename, job, department number and department name of all employees.
+(hint: the department name is from table dept)
+
+SELECT empno, ename, job, dname
+FROM   emp, dept
+WHERE emp.deptno = dept.deptno ;
+
+Example 7:  Using schemas scott, write a query to display empno,
+ename, job, department number and department name of all MANAGERs
+(hint: the department name is from table dept)
+
+SELECT empno, ename, job, dname
+
+FROM   emp, dept
+WHERE emp.deptno = dept.deptno
+AND job = 'MANAGER' ;
+------------------------------------------------
+    SELF JOIN ------------------
+Example 8:  Using schemas scott, write a query to display empno,
+ename, job, employee's manager number and  name of all employees
+(hint: use self join)
+
+SELECT worker.empno, worker.ename, worker.job, worker.mgr,
+       manager.empno "Boss ID", manager.ename "Boss Name"
+FROM   emp worker, emp manager
+WHERE  worker.mgr = manager.empno;
+
+------------------- OUTER JOIN -------------------
+Example 9:  Using schemas scott, write a query to display empno,
+ename, job, department number and department name of all
+employees including the department that has no employee
+working in it (hint: Use outer join. Put the outer join operator
+ (+) on the missing side)
+
+INSERT INTO emp(empno, ename, sal, job)
+VALUES(8888,'Jacky Chan',1,'Actor');
+
+ -- equi join 
+SELECT empno, ename, job, emp.deptno, dept.deptno, dname
+FROM   emp, dept
+WHERE emp.deptno = dept.deptno;
+ 
+-- outer join
+SELECT empno, ename, job, emp.deptno, dept.deptno, dname
+FROM   emp, dept
+WHERE emp.deptno(+) = dept.deptno;
+
+Example 10:  Using schemas scott, write a query to display empno,
+ename, job, department number and department name of all
+employees including the employee who does not working for
+any department (hint: Use outer join. Put the outer join operator
+ (+) on the missing side)
+
+SELECT empno, ename, job, emp.deptno, dept.deptno, dname
+FROM   emp, dept
+WHERE emp.deptno = dept.deptno (+);
+
+Example 10:  Using schemas scott, write a query to display empno,
+ename, job, employee's manager number and  name of all employees
+INCLUDING the employees who do not have a manager 
+(hint: use self join)
+
+SELECT worker.empno, worker.ename, worker.job, worker.mgr,
+       manager.empno "Boss ID", manager.ename "Boss Name"
+FROM   emp worker, emp manager
+WHERE  worker.mgr = manager.empno(+);

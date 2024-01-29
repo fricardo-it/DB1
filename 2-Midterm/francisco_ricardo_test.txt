@@ -1,0 +1,170 @@
+SQL> 
+SQL> --a) create tables
+SQL> CREATE TABLE supplier(suppid NUMBER, suppname VARCHAR2(50));
+
+Table created.
+
+SQL> CREATE TABLE member(mid NUMBER, memname VARCHAR2(50));
+
+Table created.
+
+SQL> CREATE TABLE video(vid NUMBER, title VARCHAR2(50), rating CHAR(1), suppid NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE rental(mid NUMBER, vid NUMBER, date_rented DATE);
+
+Table created.
+
+SQL> 
+SQL> --create PKs
+SQL> ALTER TABLE supplier
+  2  ADD CONSTRAINT supplier_suppid_PK PRIMARY KEY (suppid);
+
+Table altered.
+
+SQL> ALTER TABLE member
+  2  ADD CONSTRAINT member_mid_PK PRIMARY KEY (mid);
+
+Table altered.
+
+SQL> ALTER TABLE video
+  2  ADD CONSTRAINT video_vid_PK PRIMARY KEY (vid);
+
+Table altered.
+
+SQL> ALTER TABLE rental
+  2  ADD CONSTRAINT rental_mid_vid_PK PRIMARY KEY (mid,vid);
+
+Table altered.
+
+SQL> --create FKs
+SQL> ALTER TABLE video
+  2  ADD CONSTRAINT video_suppid_FK FOREIGN KEY (suppid)
+  3  REFERENCES supplier(suppid);
+
+Table altered.
+
+SQL> ALTER TABLE rental
+  2  ADD CONSTRAINT rental_mid_FK FOREIGN KEY (mid)
+  3  REFERENCES member(mid);
+
+Table altered.
+
+SQL> ALTER TABLE rental
+  2  ADD CONSTRAINT rental_vid_FK FOREIGN KEY (vid)
+  3  REFERENCES video(vid);
+
+Table altered.
+
+SQL> --add/modify constraints NN
+SQL> ALTER TABLE supplier
+  2  MODIFY(suppname CONSTRAINT supplier_suppname_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE video
+  2  MODIFY(title CONSTRAINT video_title_NN NOT NULL);
+
+Table altered.
+
+SQL> ALTER TABLE member
+  2  MODIFY(memname CONSTRAINT member_memname_NN NOT NULL);
+
+Table altered.
+
+SQL> --add column
+SQL> ALTER TABLE member
+  2  ADD (gender CHAR(1));
+
+Table altered.
+
+SQL> --create CK
+SQL> ALTER TABLE member
+  2  ADD CONSTRAINT member_gender_CK CHECK (gender in ('M','m','F','f'));
+
+Table altered.
+
+SQL> --create UK
+SQL> ALTER TABLE video
+  2  ADD CONSTRAINT video_rating_UK UNIQUE (rating);
+
+Table altered.
+
+SQL> INSERT INTO supplier(suppid, suppname)
+  2  VALUES (1,'SUP1');
+
+1 row created.
+
+SQL> INSERT INTO member(mid, memname)
+  2  VALUES (1,'MEM1');
+
+1 row created.
+
+SQL> INSERT INTO video(vid, title, rating, suppid)
+  2  VALUES (1,'VID1','A',1);
+
+1 row created.
+
+SQL> INSERT INTO rental(mid, vid, date_rented)
+  2  VALUES (1,1,SYSDATE);
+
+1 row created.
+
+SQL> --Q5
+SQL> --CREATE SEQUENCES
+SQL> CREATE SEQUENCE supplier_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> CREATE SEQUENCE member_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> CREATE SEQUENCE video_seq START WITH 2 INCREMENT BY 1;
+
+Sequence created.
+
+SQL> --INSERT VALUES USING SEQUENCE
+SQL> INSERT INTO supplier(suppid, suppname)
+  2  VALUES (supplier_seq.NEXTVAL,'SUP2');
+
+1 row created.
+
+SQL> INSERT INTO member(mid, memname)
+  2  VALUES (member_seq.NEXTVAL,'MEM2');
+
+1 row created.
+
+SQL> INSERT INTO video(vid, title, rating, suppid)
+  2  VALUES (video_seq.NEXTVAL,'VID2','B',supplier_seq.CURRVAL);
+
+1 row created.
+
+SQL> INSERT INTO rental(mid, vid, date_rented)
+  2  VALUES (member_seq.CURRVAL,video_seq.CURRVAL,SYSDATE);
+
+1 row created.
+
+SQL> --Q6
+SQL> -- display MemName, video title, rating, suppName, date rented of all video rented by mid = 1
+SQL> SELECT m.memname, v.title, r.date_rented, v.rating, s.suppname
+  2  FROM member m, video v, rental r, supplier s
+  3  WHERE m.mid = r.mid
+  4  and v.vid = r.vid
+  5  and v.suppid = s.suppid
+  6  and m.mid = 1;
+
+MEMNAME                                                                         
+--------------------------------------------------                              
+TITLE                                              DATE_RENT R                  
+-------------------------------------------------- --------- -                  
+SUPPNAME                                                                        
+--------------------------------------------------                              
+MEM1                                                                            
+VID1                                               01-NOV-22 A                  
+SUP1                                                                            
+                                                                                
+
+SQL> -- turn off spooling
+SQL> spool off;

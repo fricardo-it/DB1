@@ -1,0 +1,169 @@
+Menu du jour
+  Continue with Project Part 9
+BREAK
+
+  Lecture on Sub Query
+  Bonus Question
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------
+
+  SUB - QUERY 
+
+Syntax:
+    SELECT column1, column2, ...
+    FROM   table1
+    WHERE  columnx = (SELECT column3
+                      FROM   table2
+                      WHERE  columny = (SELECT column4
+                                        FROM   table3
+                                        WHERE   ...                );
+
+
+Ex1:  Find all students who are in the same class as Amanda Mobley
+
+   -- bottom up
+   -- Find the class of Amanda Mobley
+
+   SELECT s_class
+   FROM   student
+   WHERE  s_first = 'Amanda' AND s_last = 'Mobley';  SO
+
+   -- Find all students of class 'SO'
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  s_class = 'SO';
+==
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  s_class = (SELECT s_class
+                     FROM   student
+                     WHERE  s_first = 'Amanda' AND s_last = 'Mobley');
+
+
+-- TOP DOWN
+  SELECT s_first, s_last
+  FROM   student
+  WHERE  s_class = (SELECT s_class
+                    FROM  student
+                    WHERE  s_first = 'Amanda' AND s_last = 'Mobley');
+
+Ex2: Modify the query of Ex1 to remove Amanda Mobley from the result.
+
+SELECT s_first, s_last
+  FROM   student
+  WHERE  s_class = (SELECT s_class
+                    FROM  student
+                    WHERE  s_first = 'Amanda' AND s_last = 'Mobley')
+  AND NOT (s_first = 'Amanda' AND s_last = 'Mobley');
+
+Ex3: Find all students who are avised by the same advisor as Sarah Miller
+--  bottom up
+-- find the advisor of Sarah Miller
+   SELECT f_id
+   FROM   student
+   WHERE  s_first = 'Sarah' AND s_last = 'Miller';   1
+
+-- find the students with f_id = 1
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  f_id = 1;
+==
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  f_id = (SELECT f_id
+                  FROM   student
+                  WHERE  s_first = 'Sarah' AND s_last = 'Miller');
+
+Remove Sarah Miller from the result
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  f_id = (SELECT f_id
+                  FROM   student
+                  WHERE  s_first = 'Sarah' AND s_last = 'Miller')
+   AND NOT (s_first = 'Sarah' AND s_last = 'Miller');
+
+-- top down
+
+  SELECT s_first, s_last
+  FROM   student
+  WHERE  f_id = (SELECT f_id
+                 FROM   student
+                 WHERE  s_first = 'Sarah' AND s_last = 'Miller');
+
+
+Ex4:  Find all students who enrolled in the same course section as 
+       Amanda Mobley
+
+ -- bottom up
+ -- find the s_id of Amanda Mobley
+     SELECT s_id
+     FROM   student
+     WHERE  s_first = 'Amanda' AND s_last = 'Mobley';  4
+
+  -- find the c_sec_id enrolled by student number 4
+     SELECT c_sec_id
+     FROM   enrollment
+     WHERE  s_id = 4;     11, 12
+==   SELECT c_sec_id
+     FROM   enrollment
+     WHERE  s_id = (SELECT s_id
+                    FROM   student
+                    WHERE  s_first = 'Amanda' AND s_last = 'Mobley'); 11, 12
+
+  -- find the s_id enrolled in the section 11, 12
+    SELECT DISTINCT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(11,12);   3,4,5,6
+==
+   SELECT DISTINCT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(SELECT c_sec_id
+                       FROM   enrollment
+                       WHERE  s_id = (SELECT s_id
+                                  FROM   student
+                         WHERE  s_first = 'Amanda' AND s_last = 'Mobley'));
+         3,4,5,6
+  -- Find the name of the student number 3,4,5,6
+
+   SELECT s_id, s_first, s_last
+   FROM   student
+   WHERE  s_id IN (3,4,5,6);
+==
+  SELECT s_id, s_first, s_last
+   FROM   student
+   WHERE  s_id IN (SELECT DISTINCT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(SELECT c_sec_id
+                       FROM   enrollment
+                       WHERE  s_id = (SELECT s_id
+                                  FROM   student
+                   WHERE  s_first = 'Amanda' AND s_last = 'Mobley')));
+    
+Remove Amada Mobley
+SELECT s_id, s_first, s_last
+   FROM   student
+   WHERE  s_id IN (SELECT DISTINCT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(SELECT c_sec_id
+                       FROM   enrollment
+                       WHERE  s_id = (SELECT s_id
+                                  FROM   student
+                   WHERE  s_first = 'Amanda' AND s_last = 'Mobley')))
+AND NOT (s_first = 'Amanda' AND s_last = 'Mobley');
+
+
+BONUS: Find all faculty members who teach in the same location as 
+          faculty member Kim Cox.

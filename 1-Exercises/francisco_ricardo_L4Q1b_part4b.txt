@@ -1,0 +1,109 @@
+SQL> CREATE TABLE customer(custid NUMBER,phone varchar2(10),
+  2  custname VARCHAR2(50) CONSTRAINT customer_custname_NN NOT NULL,
+  3  CONSTRAINT customer_custid_PK PRIMARY KEY (custid));
+
+Table created.
+
+SQL> CREATE TABLE supplier(supplierid NUMBER,
+  2  suppliername VARCHAR2(50) CONSTRAINT supplier_suppliername_NN NOT NULL,
+  3  CONSTRAINT supplier_supplierid_PK PRIMARY KEY (supplierid));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, custid NUMBER,
+  2  CONSTRAINT orders_oid_PK PRIMARY KEY (oid),
+  3  CONSTRAINT orders_custid_FK FOREIGN KEY (custid)
+  4  REFERENCES customer(custid));
+
+Table created.
+
+SQL> CREATE TABLE product(productid NUMBER, supplierid NUMBER,
+  2  description varchar2(50) CONSTRAINT product_description_NN NOT NULL,
+  3  price NUMBER (10,2) CONSTRAINT product_price_CK CHECK (price >= 0),
+  4  CONSTRAINT product_productid_PK PRIMARY KEY (productid),
+  5  CONSTRAINT product_supplierid_FK FOREIGN KEY (supplierid)
+  6  REFERENCES supplier(supplierid));
+
+Table created.
+
+SQL> CREATE TABLE order_line(productid NUMBER, oid NUMBER, quantity NUMBER,
+  2  CONSTRAINT order_line_productid_oid_PK PRIMARY KEY (productid,oid),
+  3  CONSTRAINT order_line_productid_FK FOREIGN KEY (productid)
+  4  REFERENCES product(productid),
+  5  CONSTRAINT order_line_oid_FK FOREIGN KEY (oid)
+  6  REFERENCES orders(oid));
+
+Table created.
+
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME                                                                      
+------------------------------                                                  
+CUSTOMER                                                                        
+SUPPLIER                                                                        
+ORDERS                                                                          
+PRODUCT                                                                         
+ORDER_LINE                                                                      
+
+SQL> 
+SQL> DESC customer;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CUSTID                                    NOT NULL NUMBER
+ PHONE                                              VARCHAR2(10)
+ CUSTNAME                                  NOT NULL VARCHAR2(50)
+
+SQL> DESC supplier;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SUPPLIERID                                NOT NULL NUMBER
+ SUPPLIERNAME                              NOT NULL VARCHAR2(50)
+
+SQL> DESC orders;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OID                                       NOT NULL NUMBER
+ ODATE                                              DATE
+ CUSTID                                             NUMBER
+
+SQL> DESC product;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ SUPPLIERID                                         NUMBER
+ DESCRIPTION                               NOT NULL VARCHAR2(50)
+ PRICE                                              NUMBER(10,2)
+
+SQL> DESC order_line;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                 NOT NULL NUMBER
+ OID                                       NOT NULL NUMBER
+ QUANTITY                                           NUMBER
+
+SQL> 
+SQL> SELECT constraint_name, constraint_type, table_name, status FROM user_constraints;
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+CUSTOMER_CUSTNAME_NN           C CUSTOMER                       ENABLED         
+CUSTOMER_CUSTID_PK             P CUSTOMER                       ENABLED         
+SUPPLIER_SUPPLIERNAME_NN       C SUPPLIER                       ENABLED         
+SUPPLIER_SUPPLIERID_PK         P SUPPLIER                       ENABLED         
+ORDERS_OID_PK                  P ORDERS                         ENABLED         
+ORDERS_CUSTID_FK               R ORDERS                         ENABLED         
+PRODUCT_DESCRIPTION_NN         C PRODUCT                        ENABLED         
+PRODUCT_PRICE_CK               C PRODUCT                        ENABLED         
+PRODUCT_PRODUCTID_PK           P PRODUCT                        ENABLED         
+PRODUCT_SUPPLIERID_FK          R PRODUCT                        ENABLED         
+ORDER_LINE_PRODUCTID_OID_PK    P ORDER_LINE                     ENABLED         
+
+CONSTRAINT_NAME                C TABLE_NAME                     STATUS          
+------------------------------ - ------------------------------ --------        
+ORDER_LINE_PRODUCTID_FK        R ORDER_LINE                     ENABLED         
+ORDER_LINE_OID_FK              R ORDER_LINE                     ENABLED         
+
+13 rows selected.
+
+SQL> 
+SQL> SPOOL OFF;

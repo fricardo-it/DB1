@@ -1,0 +1,231 @@
+-- supplier(supplier_id, supplier_name)
+-- video(video_id, title, rating, supplier_id)
+-- rental(video_id, member_id, return_date)
+-- member(member_id, member_name, address, age)
+
+
+
+connect sys/sys as sysdba
+
+create user nguyen identified by 123;
+
+grant connect, resource to nguyen;
+
+connect nguyen/123
+
+-- creating tables
+
+create table supplier(supplier_id number(5), supplier_name varchar2(20));
+
+create table video(video_id number(5), title varchar2(20), rating varchar2(20), supplier_id number(5));
+
+create table rental(video_id number(5), member_id number(5), return_date date);
+
+create table member(member_id number(5), member_name varchar2(20), address varchar2(20), age number(5));
+
+-- adding all pks
+
+alter table supplier add constraint supplier_pk primary key(supplier_id);
+
+alter table video add constraint video_pk primary key(video_id);
+
+alter table rental add constraint rental_pk primary key(video_id, member_id);
+
+alter table member add constraint member_pk primary key(member_id);
+
+-- adding all fks
+
+alter table video add constraint video_supplier_fk foreign key(supplier_id) 
+references supplier(supplier_id);
+
+alter table rental add constraint rental_video_fk foreign key(video_id) references video(video_id);
+
+alter table rental add constraint rental_member_fk foreign key(member_id) references member(member_id);
+
+
+
+-- adding constraint not null to supplier_name, member_name
+
+alter table supplier modify (supplier_name constraint supplier_name_nn not null);
+
+alter table member modify (member_name constraint member_name_nn not null);
+
+-- add column gender of type char(1) to member table
+
+alter table member add gender char(1);
+
+-- add check constraint to member table gender column to allow only M,m or F,f
+
+alter table member add constraint member check (lower(gender) in ('m', 'f'));
+
+-- make sure member age is a positive number
+
+alter table member add constraint member_age_ck check (age > 0);
+
+-- add constraint unique to supplier_name
+
+alter table supplier add constraint supplier_name_uq unique(supplier_name);
+
+spool off
+-- supplier(supplier_id, supplier_name)
+-- video(video_id, title, rating, supplier_id)
+-- rental(video_id, member_id, return_date)
+-- member(member_id, member_name, address, age, gender)
+
+-- gender should onlty accept M,m or F,f
+-- age should be a positive number
+
+-- create all constraints and pks and fks in one line
+
+
+
+connect sys/sys as sysdba
+
+create user nguyen_q2 identified by 123;
+
+grant connect, resource to nguyen_q2;
+
+connect nguyen_q2/123
+
+create table supplier(supplier_id number(5) primary key,
+ supplier_name varchar2(20) constraint supplier_name_nn not null constraint supplier_name_uq unique);
+
+create table video(video_id number(5) primary key, title varchar2(20), 
+rating varchar2(20), supplier_id number(5), constraint video_supplier_fk 
+references supplier(supplier_id));
+
+create table member(member_id number(5) primary key,
+ member_name varchar2(20) constraint member_name_nn not null, 
+address varchar2(20), age number(5), constraint member_age_ck check (age > 0));
+
+create table rental(video_id number(5), member_id number(5), return_date date,
+constraint rental_pk primary key(video_id, member_id) 
+constraint rental_member_fk references member(member_id),
+constraint rental_video_fk references video(video_id));
+
+----------------Q4
+
+-- find f_id of Amanda Mobley
+  SELECT f_id
+  FROM   student
+  WHERE  s_first = 'Amanda' AND s_last = 'Mobley';  2
+
+-- find all student with f_id = 2
+  SELECT s_last, s_first
+  FROM   student
+  WHERE  f_id = 2;
+== SELECT s_last, s_first
+   FROM   student
+   WHERE  f_id = (SELECT f_id
+                 FROM   student
+                 WHERE  s_first = 'Amanda' AND s_last = 'Mobley');
+
+----------
+Q5
+SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT DISTINCT f_id
+                       FROM   course_section
+                       WHERE  loc_id IN (SELECT loc_id
+                         FROM   location
+                         WHERE  bldg_code = 'BUS'))
+MINUS
+SELECT f_last, f_first
+       FROM   faculty 
+       WHERE  f_id IN (SELECT f_id
+                       FROM   faculty
+                        WHERE  loc_id IN (SELECT loc_id
+                                      FROM   location
+                                    WHERE  bldg_code = 'BUS'));
+
+
+--------------------
+q6
+  -- find the capacity of CR 103
+
+    SELECT capacity
+    FROM   location
+    WHERE  bldg_code = 'CR' and room = 103;   35
+
+  --  find loc_id with capacity = 35
+   SELECT loc_id
+   FROM   location
+   WHERE  capacity = 35;  3,4,6,7
+
+==  SELECT loc_id
+   FROM   location
+   WHERE  capacity = (SELECT capacity
+                      FROM   location
+                   WHERE  bldg_code = 'CR' and room = 103);
+
+  -- find the c_sec_id in location 3,4,6,7
+   SELECT c_sec_id
+   FROM   course_section
+   WHERE  loc_id IN(3,4,6,7);   2,4,5,8,12
+== SELECT c_sec_id
+   FROM   course_section
+   WHERE  loc_id IN(SELECT loc_id
+                   FROM   location
+                  WHERE  capacity = (SELECT capacity
+                                   FROM   location
+                                WHERE  bldg_code = 'CR' and room = 103));2,4,5,8,12
+
+  -- find all s_id enrolled in c_sec_id 2,4,5,8,12
+
+    SELECT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(2,4,5,8,12);
+==  SELECT s_id
+    FROM   enrollment
+    WHERE  c_sec_id IN(SELECT c_sec_id
+   FROM   course_section
+   WHERE  loc_id IN(SELECT loc_id
+                   FROM   location
+                  WHERE  capacity = (SELECT capacity
+                                   FROM   location
+                                WHERE  bldg_code = 'CR' and room = 103)));
+
+  -- find student name of s_id 1,2,3,4,5,6
+   SELECT s_first, s_last
+   FROM   student
+   WHERE  s_id IN (1,2,3,4,5,6);
+
+== SELECT s_first, s_last
+   FROM   student
+   WHERE  s_id IN (SELECT s_id
+                  FROM   enrollment
+                  WHERE  c_sec_id IN(SELECT c_sec_id
+                                    FROM   course_section
+                                  WHERE  loc_id IN(SELECT loc_id
+                                      FROM   location
+                                WHERE  capacity = (SELECT capacity
+                                              FROM   location
+                                       WHERE  bldg_code = 'CR' and room = 103))));
+
+-------------- Q7
+   CREATE OR REPLACE VIEW student_detail_view AS
+   SELECT s_first, s_last, course_name, bldg_code, room, GRADE
+   FROM   student s, course c, location l, enrollment e, course_section cs, term t
+   WHERE  s.s_id = e.s_id
+   AND    e.c_sec_id = cs.c_sec_id
+   AND    cs.course_id = c.course_id
+   AND    cs.loc_id = l.loc_id
+   AND    cs.term_id = t.term_id
+   AND    term_desc = 'Summer 2006'
+   WITH CHECK OPTION;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

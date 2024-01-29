@@ -1,0 +1,47 @@
+SQL> CREATE TABLE customer(custid NUMBER, custname VARCHAR2(50), phone varchar2(10));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, custid NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE product(productid NUMBER, description varchar2(50), price number(10,2));
+
+Table created.
+
+SQL> CREATE TABLE order_line(productid NUMBER, oid NUMBER, quantity NUMBER);
+
+Table created.
+
+SQL> DESC product;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                          NUMBER
+ DESCRIPTION                                        VARCHAR2(50)
+ PRICE                                              NUMBER(10,2)
+
+SQL> DESC orders;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OID                                                NUMBER
+ ODATE                                              DATE
+ CUSTID                                             NUMBER
+
+SQL> DESC customer;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CUSTID                                             NUMBER
+ CUSTNAME                                           VARCHAR2(50)
+ PHONE                                              VARCHAR2(10)
+
+SQL> DESC order_line;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCTID                                          NUMBER
+ OID                                                NUMBER
+ QUANTITY                                           NUMBER
+
+SQL> spoll off;
+SP2-0042: unknown command "spoll off" - rest of line ignored.
+SQL> spool off;

@@ -1,0 +1,20 @@
+SQL> CREATE TABLE customer(custid NUMBER, custname VARCHAR2(50), phone varchar2(10));
+
+Table created.
+
+SQL> CREATE TABLE orders(oid NUMBER, odate DATE, custid NUMBER);
+
+Table created.
+
+SQL> CREATE TABLE product(productid NUMBER, description varchar2(50), price varchar2(6));
+
+Table created.
+
+SQL> CREATE TABLE order_line(productid NUMBER, oid NUMBER, quantity NUMBER);
+
+Table created.
+
+
+
+
+SQL> spool off

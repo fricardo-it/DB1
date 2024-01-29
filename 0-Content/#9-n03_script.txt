@@ -1,0 +1,132 @@
+Menu du jour
+  VIEW
+BREAK
+  VIEW again
+Bonus Nov 3
+-----------
+  What???
+    A view is just a SELECT statement, but it look like a table.
+  Why???
+    -- For sensitive data
+Example 1:
+  Using schema scott, create a view named employee with column
+empno, ename, job, deptno of table emp.  Give user miwa full access
+to the view so that she can manage the data of the table emp
+via the view just created.
+
+
+    Syntax:   CREATE OR REPLACE [FORCE] VIEW name_of_view AS
+                 SELECT statement
+               [ WITH READ ONLY
+                 WITH CHECK OPTION ]  ;
+
+
+-- scott
+connect scott/tiger
+  CREATE OR REPLACE VIEW employee AS
+     SELECT empno, ename, job, deptno
+     FROM  emp;
+  GRANT SELECT,INSERT, UPDATE, DELETE ON employee TO miwa;
+
+-- sys
+  connect sys/sys as sysdba
+  GRANT CREATE VIEW TO scott;
+  CREATE USER miwa IDENTIFIED BY 123;
+  GRANT connect, resource to miwa;
+
+--
+  connect miwa/123;
+  SELECT * FROM scott.employee;
+  UPDATE scott.employee
+  SET  job = 'SALESMAN', deptno = 20
+  WHERE empno = 7934;
+
+   -- To make your life easier when create a SELECT from multiple
+tables
+
+Example 2:  Using schemas scott, create a view named employee_detail
+with column deptno, dname, empno, ename, job, salary from
+the 2 table dept, emp. Give miwa full access to the view just created.
+-- scott
+  CREATE OR REPLACE VIEW employee_detail AS
+     SELECT d.deptno , dname, empno, ename, sal, job 
+     FROM   dept d, emp e
+     WHERE  d.deptno = e.deptno;
+
+  GRANT SELECT, INSERT, UPDATE, DELETE ON employee_detail TO miwa;
+-- miwa
+  SELECT ename, dname, job, sal FROM scott.employee_detail;
+
+---------------------------------- OPTION  on VIEW ---------
+  WITH READ ONLY
+
+Example 3: Using schema scott, create a view named employee_ro
+just to display the empno, ename, job, comm, and deptno . Give
+user miwa FULL access for testing the view just created (hint: use
+option WITH READ ONLY)
+
+-- scott
+  CREATE OR REPLACE VIEW employee_ro AS
+    SELECT empno, ename, job, comm, deptno 
+    FROM emp
+    WITH READ ONLY;
+  GRANT SELECT , INSERT, UPDATE, DELETE ON employee_ro TO miwa;
+
+-- miwa
+  SELECT * FROM scott.employee_ro;
+  UPDATE scott.employee_ro
+  SET    comm = 9999
+  WHERE  empno = 7934;
+
+---
+  WITH CHECK OPTION
+Example 4: Create a view named employee_dept30 with column empno,
+ename, sal , job, deptno of all employees of department number 30,
+make sure that no employees can change the department number (that
+is data always remain inside the view) (hint: use WITH CHECK OPTION)
+Give miwa full access to the view just created for testing of 2
+DML operations.
+-- scott
+  CREATE OR REPLACE VIEW  employee_dept30 AS
+    SELECT empno, ename, sal , job, deptno
+    FROM   emp
+    WHERE  deptno = 30
+    WITH CHECK OPTION;
+  GRANT SELECT, UPDATE, INSERT, DELETE ON employee_dept30 TO miwa;
+
+-- miwa
+   SELECT * FROM scott.employee_dept30;
+   UPDATE  scott.employee_dept30
+   SET     job = 'SALESMAN' , sal = 2850
+   WHERE   empno = 7654;
+
+   UPDATE  scott.employee_dept30
+   SET     deptno = 40
+   WHERE   empno = 7654;
+-------------------------------------------------------
+  Last option:  FORCE
+
+Example:  Create a view named child_detail containing all the
+attributes of the NOT YET created table of the design below:
+
+    MOTHER(MID, mname)
+    CHILD(CID, cname, momid)
+
+   MOTHER  ---E   CHILD
+
+(hint: use option FORCE )
+
+  -- miwa
+  CREATE OR REPLACE FORCE VIEW child_detail AS
+    SELECT mid, mname, cid, cname, momid
+    FROM   mother, child
+    WHERE  mother.mid = child.momid;
+-- 3 years later
+  CREATE TABLE mother(mid NUMBER CONSTRAINT mother_mid_pk PRIMARY KEY,
+                    mname VARCHAR2(20));
+  CREATE TABLE child(CID NUMBER, cname VARCHAR2(20), momid NUMBER,
+      CONSTRAINT child_cid_pk PRIMARY KEY (cid),
+      CONSTRAINT child_momid_fk FOREIGN KEY(momid)
+      REFERENCES mother(mid) );
+---------------- Bonus
+  Auto correct your midterm test. p
